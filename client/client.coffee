@@ -58,7 +58,7 @@ if Meteor.isClient
         insert: (error, result, template) ->
           console.log error, result
       onError: (operation, error, template) ->
-        Session.set('insertExpenseFormError', error)
+        Session.set('insertExpenseFormError', error.message)
 
   # default session state:
   Session.set 'loginMessage', null
@@ -96,6 +96,9 @@ if Meteor.isClient
   # Add New Expense Template
   #
 
+  Template.addNewExpense.rendered = () ->
+    Session.set('insertExpenseFormError', null)
+
   Template.addNewExpense.helpers
     'expenses': () -> Expenses
     'insertError': () -> Session.get('insertExpenseFormError')
@@ -107,6 +110,9 @@ if Meteor.isClient
 #   profile: {
 #     name: 'John Doe',
 #     dwollaId: '812-713-9234',
-#     managerId: 'efefwef'
+#     managerId: 'efefwef',
+#     canApproveExpenses: false,
+#     canApproveOwnExpenses: false,
+#     canReimburseExpenses: false
 #   }  
 # })

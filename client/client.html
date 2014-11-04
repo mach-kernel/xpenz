@@ -43,26 +43,48 @@
 {{ insertError }}
 <div class="row">
 	{{#autoForm collection=expenses id="insertExpenseForm" type="insert" class="form-inline"}}
-	{{> afFieldInput name="date" placeholder="schemaLabel"}}
-	{{> afFieldInput name="title" placeholder="schemaLabel"}}
-	{{> afFieldInput name="description" placeholder="schemaLabel"}}
-	{{> afFieldInput name="type" options="allowed"}}
-	<div class="input-group">
-	  <span class="input-group-addon">$</span>
-	  {{> afFieldInput name="amount" placeholder="schemaLabel" step="0.01" type="number"}}
-	</div>
+		{{> afFieldInput name="date" placeholder="schemaLabel"}}
+		{{> afFieldInput name="title" placeholder="schemaLabel"}}
+		{{> afFieldInput name="description" placeholder="schemaLabel"}}
+		{{> afFieldInput name="type" options="allowed"}}
+		<div class="input-group">
+		  <span class="input-group-addon">$</span>
+		  {{> afFieldInput name="amount" placeholder="schemaLabel" step="0.01" type="number"}}
+		</div>
 
-	<button type="submit" class="btn btn-success btn-large">Create</button>
-{{/autoForm}}
+		<button type="submit" class="btn btn-success btn-large">Create</button>
+	{{/autoForm}}
 </div>
-
-
 </template>
 
 <template name="showExpenses">
-{{#each getExpenses}}
-	<div>
-		{{date}} : {{description}} : $ {{amount}}
-	</div>
-{{/each}}
+<div class="row">
+<table class="table">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Type</th>
+			<th>Title</th>
+			<th>Description</th>
+			<th>Amount</th>
+			<th>Approved</th>
+			<th>Paid</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each getExpenses}}
+			<tr>
+				<td>{{date}}</td>
+				<td>{{type}}</td>
+				<td>{{title}}</td>
+				<td>{{description}}</td>
+				<td>{{amount}}</td>
+				<td>{{#if approved}} yes {{else}} pending {{/if}}</td>
+				<td>{{#if paid}} yes {{else}}  {{/if}}</td>
+			</tr>
+		{{/each}}
+	</tbody>
+</table>
+</div>
+
 </template>
