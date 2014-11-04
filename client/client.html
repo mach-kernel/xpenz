@@ -1,16 +1,21 @@
 <head>
   <title>xpenz</title>
+
+  <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/js/bootstrap.min.js"></script>
+  </style>
 </head>
 
 <body>
-  <h1>xpenz</h1>
+	<div class="container">
+		<h1>xpenz</h1>
 
-  {{#if currentUser}}
-  	{{> expenses}}
-  {{else}}
- 	 	{{> login}}
-  {{/if}}
-  
+	  {{#if currentUser}}
+	  	{{> expenses}}
+	  {{else}}
+	 	 	{{> login}}
+	  {{/if}}
+	</div>
 </body>
 
 <!-- Templates  -->
@@ -24,10 +29,10 @@
 
 <template name="expenses">
 	{{#with currentUser}}
-		Hello {{profile.name}}
+		Hi, {{profile.name}}.
 	{{/with}}
 	
-	<h3>expenses</h3>
+	<h3>your expenses</h3>
 	{{> addNewExpense }}
 
 	{{> showExpenses}}
@@ -35,12 +40,23 @@
 </template>
 
 <template name="addNewExpense">
-<input type="date" id="expenseDate" placeholder="Date">
-<input type="text" id="expenseTitle" placeholder="Title">
-<input type="text" id="expenseDescription" placeholder="Description">
-<input type="text" id="expenseType" placeholder="Type">
-<input type="text" id="expenseAmount" placeholder="Amount">
-<button type="button">Create</button>
+{{ insertError }}
+<div class="row">
+	{{#autoForm collection=expenses id="insertExpenseForm" type="insert" class="form-inline"}}
+	{{> afFieldInput name="date" placeholder="schemaLabel"}}
+	{{> afFieldInput name="title" placeholder="schemaLabel"}}
+	{{> afFieldInput name="description" placeholder="schemaLabel"}}
+	{{> afFieldInput name="type" options="allowed"}}
+	<div class="input-group">
+	  <span class="input-group-addon">$</span>
+	  {{> afFieldInput name="amount" placeholder="schemaLabel" step="0.01" type="number"}}
+	</div>
+
+	<button type="submit" class="btn btn-success btn-large">Create</button>
+{{/autoForm}}
+</div>
+
+
 </template>
 
 <template name="showExpenses">

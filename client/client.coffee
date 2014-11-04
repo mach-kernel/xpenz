@@ -1,6 +1,64 @@
 if Meteor.isClient
   # declare collections:
-  Expenses = new Mongo.Collection('expenses')
+  Expenses = new Mongo.Collection 'expenses'
+
+  Expenses.attachSchema new SimpleSchema
+    title: 
+      type: String
+      label: 'Title'
+      optional: false
+      max: 200
+    description:
+      type: String
+      optional: false
+      label: 'Description'
+      max: 500
+    amount: # TODO: consider using cents to store amount
+      type: String
+      optional: false
+      label: 'Amount'
+    type:
+      type: String
+      optional: false
+      allowedValues: ['Ground Transportation', 'Office', 'Flights', 'Lodging', 'Food', 'Other']
+      label: 'Type'
+    date:
+      type: Date
+      optional: false
+      label: 'Date Incurred'
+    employeeId:
+      optional: false
+      type: String
+    managerId:
+      optional: false
+      type: String
+    approved:
+      optional: false
+      defaultValue: false
+      type: Boolean
+    paid:
+      optional: false
+      defaultValue: false
+      type: Boolean
+    paidTransactionId:
+      optional: true
+      type: String
+
+  # Set AutoForm hooks:
+
+  AutoForm.hooks
+    insertExpenseForm:
+      before:
+        insert: (doc, template) ->  # set employeeId and managerId before inserting document into collection
+          doc.employeeId = Meteor.user()._id
+          doc.managerId = Meteor.user().profile.managerId
+          console.log doc
+          return doc
+      after:
+        insert: (error, result, template) ->
+          console.log error, result
+      onError: (operation, error, template) ->
+        Session.set('insertExpenseFormError', error)
 
   # default session state:
   Session.set 'loginMessage', null
@@ -31,39 +89,24 @@ if Meteor.isClient
   Template.showExpenses.helpers
     'getExpenses': () -> 
       Expenses.find
-        employee: Meteor.user()._id
+        employeeId: Meteor.user()._id
 
 
   #
   # Add New Expense Template
   #
 
-  Template.addNewExpense.events =
-    'click button': ->
-      expenseTitle = $('#expenseTitle').val()
-      expenseDescription = $('#expenseDescription').val()
-      expenseAmount = $('#expenseAmount').val()
-      expenseDate = $('#expenseDate').val()
-      expenseType = $('#expenseType').val()
-      # TODO: set manager here
+  Template.addNewExpense.helpers
+    'expenses': () -> Expenses
+    'insertError': () -> Session.get('insertExpenseFormError')
 
-      # TODO: handle validation here
-
-      Expenses.insert
-          title: expenseTitle
-          description: expenseDescription
-          amount: expenseAmount
-          date: new Date(expenseDate)
-          type: expenseType
-          employee: Meteor.user()._id
-        , (error, id) -> console.log error, id
 
 # Accounts.createUser({
 #   email: email,
 #   password: password,
 #   profile: {
 #     name: 'John Doe',
-#     dwollaID: '812-713-9234',
-#     manager: 'brent@dwolla.com'
+#     dwollaId: '812-713-9234',
+#     managerId: 'efefwef'
 #   }  
 # })
