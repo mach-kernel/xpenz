@@ -1,6 +1,6 @@
 if Meteor.isClient
   # declare collections:
-  Expenses = Mongo.Collection('expenses')
+  Expenses = new Mongo.Collection('expenses')
 
   # default session state:
   Session.set 'loginMessage', null
@@ -29,6 +29,7 @@ if Meteor.isClient
 #   password: password,
 #   profile: {
 #     name: 'John Doe',
-#     dwollaID: '812-713-9234'
+#     dwollaID: '812-713-9234',
+#     manager: 'brent@dwolla.com'
 #   }  
 # })
