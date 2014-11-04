@@ -3,12 +3,29 @@
 </head>
 
 <body>
-  <h1>Welcome to Meteor!</h1>
+  <h1>xpenz</h1>
 
-  {{> hello}}
+  {{#if currentUser}}
+  	{{> expenses}}
+  {{else}}
+ 	 	{{> login}}
+  {{/if}}
+  
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
+<!-- Templates  -->
+
+<template name="login">
+	{{ loginMessage }}
+	<input id="email" type="email" />
+	<input id="password" type="password" />
+	<button>Login</button>
+</template>
+
+<template name="expenses">
+	{{#with currentUser}}
+		Hello {{profile.name}}
+	{{/with}}
+	expenses
+	
 </template>
