@@ -5,7 +5,10 @@ if Meteor.isClient
   # default session state:
   Session.set 'loginMessage', null
 
-  # Login template:
+  # 
+  # Login template
+  #
+
   Template.login.helpers
     'loginMessage': ->
         Session.get('loginMessage')
@@ -21,8 +24,39 @@ if Meteor.isClient
         Session.set 'loginMessage', 'Welcome' + Meteor.user().profile.name
     )
 
-  # Expenses template:
+  #
+  # Expenses Template
+  #
 
+  Template.showExpenses.helpers
+    'getExpenses': () -> 
+      Expenses.find
+        employee: Meteor.user()._id
+
+
+  #
+  # Add New Expense Template
+  #
+
+  Template.addNewExpense.events =
+    'click button': ->
+      expenseTitle = $('#expenseTitle').val()
+      expenseDescription = $('#expenseDescription').val()
+      expenseAmount = $('#expenseAmount').val()
+      expenseDate = $('#expenseDate').val()
+      expenseType = $('#expenseType').val()
+      # TODO: set manager here
+
+      # TODO: handle validation here
+
+      Expenses.insert
+          title: expenseTitle
+          description: expenseDescription
+          amount: expenseAmount
+          date: new Date(expenseDate)
+          type: expenseType
+          employee: Meteor.user()._id
+        , (error, id) -> console.log error, id
 
 # Accounts.createUser({
 #   email: email,

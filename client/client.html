@@ -26,6 +26,27 @@
 	{{#with currentUser}}
 		Hello {{profile.name}}
 	{{/with}}
-	expenses
 	
+	<h3>expenses</h3>
+	{{> addNewExpense }}
+
+	{{> showExpenses}}
+	
+</template>
+
+<template name="addNewExpense">
+<input type="date" id="expenseDate" placeholder="Date">
+<input type="text" id="expenseTitle" placeholder="Title">
+<input type="text" id="expenseDescription" placeholder="Description">
+<input type="text" id="expenseType" placeholder="Type">
+<input type="text" id="expenseAmount" placeholder="Amount">
+<button type="button">Create</button>
+</template>
+
+<template name="showExpenses">
+{{#each getExpenses}}
+	<div>
+		{{date}} : {{description}} : $ {{amount}}
+	</div>
+{{/each}}
 </template>
