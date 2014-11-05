@@ -32,17 +32,13 @@ if Meteor.isClient
     managerId:
       optional: false
       type: String
-    approved:
-      optional: false
-      defaultValue: false
-      type: Boolean
-    paid:
-      optional: false
-      defaultValue: false
-      type: Boolean
     paidTransactionId:
       optional: true
       type: String
+    status:
+      type: String
+      optional: false
+      allowedValues: ['PendingApproval', 'PendingReimbursement', 'Rejected', 'Reimbursed']
 
   # Set AutoForm hooks:
 
@@ -52,6 +48,7 @@ if Meteor.isClient
         insert: (doc, template) ->  # set employeeId and managerId before inserting document into collection
           doc.employeeId = Meteor.user()._id
           doc.managerId = Meteor.user().profile.managerId
+          doc.status = 'PendingApproval'
           console.log doc
           return doc
       after:
@@ -90,7 +87,7 @@ if Meteor.isClient
     'getExpenses': () -> 
       Expenses.find
         employeeId: Meteor.user()._id
-
+    'expensesCollection': () -> Expenses
 
   #
   # Add New Expense Template
@@ -113,6 +110,8 @@ if Meteor.isClient
 #     managerId: 'efefwef',
 #     canApproveExpenses: false,
 #     canApproveOwnExpenses: false,
-#     canReimburseExpenses: false
+#     canReimburseExpenses: false,
+#     emailAddress: null,
+#     
 #   }  
 # })

@@ -67,8 +67,7 @@
 			<th>Title</th>
 			<th>Description</th>
 			<th>Amount</th>
-			<th>Approved</th>
-			<th>Paid</th>
+			<th>Status</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -79,8 +78,8 @@
 				<td>{{title}}</td>
 				<td>{{description}}</td>
 				<td>{{amount}}</td>
-				<td>{{#if approved}} yes {{else}} pending {{/if}}</td>
-				<td>{{#if paid}} yes {{else}}  {{/if}}</td>
+				<td>{{status}}</td>
+				<td>{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}</td>
 			</tr>
 		{{/each}}
 	</tbody>
