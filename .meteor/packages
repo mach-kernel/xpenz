@@ -4,7 +4,6 @@
 # but you can also edit it by hand.
 
 meteor-platform
-autopublish
 insecure
 less
 coffeescript
@@ -12,4 +11,4 @@ accounts-password
 aldeed:autoform
 aldeed:collection2
 aldeed:delete-button
-
+lepozepo:s3

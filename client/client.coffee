@@ -39,6 +39,20 @@ if Meteor.isClient
       type: String
       optional: false
       allowedValues: ['PendingApproval', 'PendingReimbursement', 'Rejected', 'Reimbursed']
+    receiptFileURL:
+      type: String
+      optional: true
+
+  # TODO: validate each potential expense object on the server side
+  Meteor.subscribe "expensesCreatedByUser"
+  
+
+  # TODO: if user is manager, subscribe them to:
+  # Meteor.subscribe "expensesWhichRequireManagerApproval"
+
+  # TODO: if user is accountant, subscribe them to:
+  # Meteor.subscribe "expensesAllPendingApproval"
+  # Meteor.subscribe "expensesAllPendingReimbursement"
 
   # Set AutoForm hooks:
 
@@ -46,14 +60,24 @@ if Meteor.isClient
     insertExpenseForm:
       before:
         insert: (doc, template) ->  # set employeeId and managerId before inserting document into collection
+          hook = this
           doc.employeeId = Meteor.user()._id
           doc.managerId = Meteor.user().profile.managerId
           doc.status = 'PendingApproval'
+
+          files = $("input.file_bag")[0].files
+          S3.upload files, 'receipts', (err, result) ->
+            console.log result
+            doc.receiptFileURL = result.secure_url
+            hook.result(doc)
+          
           console.log doc
-          return doc
+          
+
       after:
         insert: (error, result, template) ->
           console.log error, result
+
       onError: (operation, error, template) ->
         Session.set('insertExpenseFormError', error.message)
 
@@ -89,6 +113,10 @@ if Meteor.isClient
         employeeId: Meteor.user()._id
     'expensesCollection': () -> Expenses
 
+  Template.showExpenses.rendered = () ->
+    $('.receipt')
+
+
   #
   # Add New Expense Template
   #
@@ -99,7 +127,16 @@ if Meteor.isClient
   Template.addNewExpense.helpers
     'expenses': () -> Expenses
     'insertError': () -> Session.get('insertExpenseFormError')
+    "files": () -> S3.collection.find()
 
+  # Template.addNewExpense.events =
+  #   'keypress': (e) ->
+  #     if e.keyCode == 13
+  #       $('#createExpenseButton').submit()
+
+
+    #Object {percent_uploaded: 100, uploading: false, url: "http://dlabshr.s3.amazonaws.com/receipts/zCr5YAGtuq9MdBCHS.png", secure_url: "https://dlabshr.s3.amazonaws.com/receipts/zCr5YAGtuq9MdBCHS.png", relative_url: "receipts/zCr5YAGtuq9MdBCHS.png"}
+    
 
 # Accounts.createUser({
 #   email: email,

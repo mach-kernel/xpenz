@@ -2,13 +2,16 @@
   <title>xpenz</title>
 
   <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css" rel="stylesheet">
+
   <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js"></script>
   </style>
 </head>
 
 <body>
 	<div class="container">
-		<h1>xpenz</h1>
+		<h1 class="text-center">xpenz</h1>
 
 	  {{#if currentUser}}
 	  	{{> expenses}}
@@ -41,24 +44,45 @@
 
 <template name="addNewExpense">
 {{ insertError }}
+{{#autoForm collection=expenses id="insertExpenseForm" type="insert" class="form-inline"}}
 <div class="row">
-	{{#autoForm collection=expenses id="insertExpenseForm" type="insert" class="form-inline"}}
-		{{> afFieldInput name="date" placeholder="schemaLabel"}}
-		{{> afFieldInput name="title" placeholder="schemaLabel"}}
-		{{> afFieldInput name="description" placeholder="schemaLabel"}}
-		{{> afFieldInput name="type" options="allowed"}}
-		<div class="input-group">
-		  <span class="input-group-addon">$</span>
-		  {{> afFieldInput name="amount" placeholder="schemaLabel" step="0.01" type="number"}}
+	
+		<div class="col-lg-2">
+			{{> afFieldInput name="date" placeholder="schemaLabel" id="expenseDateField"}}
 		</div>
-
-		<button type="submit" class="btn btn-success btn-large">Create</button>
-	{{/autoForm}}
+		<div class="col-lg-2">
+			{{> afFieldInput name="title" placeholder="schemaLabel"}}
+		</div>
+		<div class="col-lg-2">
+			{{> afFieldInput name="description" placeholder="schemaLabel"}}
+		</div>
+		<div class="col-lg-2">
+			{{> afFieldInput name="type" options="allowed"}}
+		</div>
+		<div class="col-lg-2">
+			<div class="input-group">
+			  <span class="input-group-addon">$</span>
+			  {{> afFieldInput name="amount" placeholder="schemaLabel" step="0.01" type="number" id="expenseAmountField"}}
+			</div>
+		</div>
+		<div class="col-lg-2">
+			<input type="file" class="file_bag">
+	    {{#each files}}
+	        <p>upload: {{percent_uploaded}}%</p>
+	    {{/each}}
+		</div>
 </div>
+<div class="row">
+	<div class="col-lg-12">
+		<button type="submit" class="btn btn-success btn-large" id="createExpenseButton">Create</button>
+	</div>
+</div>
+{{/autoForm}}
 </template>
 
+
 <template name="showExpenses">
-<div class="row">
+<div class="row expensesView">
 <table class="table">
 	<thead>
 		<tr>
@@ -79,6 +103,10 @@
 				<td>{{description}}</td>
 				<td>{{amount}}</td>
 				<td>{{status}}</td>
+				<td>{{#if receiptFileURL}}
+					<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{title}}">Receipt</a>
+					{{else}}
+					{{/if}}</td>
 				<td>{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}</td>
 			</tr>
 		{{/each}}

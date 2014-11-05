@@ -17,10 +17,12 @@ Clone the app and run it with:
 - implement image upload
 - implement manager relationship and role
 - implement manager expense view, ability to approve or deny an expense
-- implement accountant role
-- implement accountant expense view, ability to pay out groups of approved expenses
+- implement accountant role, 
+- implement accountant expense view, ability to pay out groups of approved expenses, ability to approve expenses
+- add ability to edit expense
 
 Stretch:
 
 - implement accountant statistics view
 - implement email alert to manager when expense filed
+- implement submit expense by Twilio MMS
