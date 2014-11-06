@@ -54,7 +54,8 @@
 				<tr>
 					<th>Date</th>
 					<th>Type</th>
-					<th>Title</th>
+					<th>Vendor</th>
+					<th>Trip</th>
 					<th>Description</th>
 					<th>Amount</th>
 					<th>Status</th>
@@ -65,12 +66,13 @@
 					<tr>
 						<td>{{date}}</td>
 						<td>{{type}}</td>
-						<td>{{title}}</td>
+						<td>{{vendor}}</td>
+						<td>{{trip}}</td>
 						<td>{{description}}</td>
 						<td>{{amount}}</td>
 						<td>{{status}}</td>
 						<td>{{#if receiptFileURL}}
-							<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{title}}">Receipt</a>
+							<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{description}}">Receipt</a>
 							{{else}}
 							{{/if}}</td>
 						<td>{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}</td>
@@ -85,12 +87,14 @@
 {{ insertError }}
 {{#autoForm collection=expenses id="insertExpenseForm" type="insert" class="form-inline"}}
 <div class="row">
-	
 		<div class="col-lg-2">
 			{{> afFieldInput name="date" placeholder="schemaLabel" id="expenseDateField"}}
 		</div>
 		<div class="col-lg-2">
-			{{> afFieldInput name="title" placeholder="schemaLabel"}}
+			{{> afFieldInput name="trip" placeholder="schemaLabel"}}
+		</div>
+		<div class="col-lg-2">
+			{{> afFieldInput name="vendor" placeholder="schemaLabel"}}
 		</div>
 		<div class="col-lg-2">
 			{{> afFieldInput name="description" placeholder="schemaLabel"}}
@@ -124,10 +128,12 @@
 	<h3>expenses to approve/reimburse</h3>
 	<table class="table">
 		<thead>
-			<tr>
+			<tr>	
+				<th>Employee</th>
 				<th>Date</th>
 				<th>Type</th>
-				<th>Title</th>
+				<th>Vendor</th>
+				<th>Trip</th>
 				<th>Description</th>
 				<th>Amount</th>
 				<th>Status</th>
@@ -146,14 +152,16 @@
 <template name="displayExpenseRow">
 {{#with currentExpense}}
 <tr>
+	<td>{{#with getEmployee}} {{profile.name}} {{/with}}</td>
 	<td>{{date}}</td>
 	<td>{{type}}</td>
-	<td>{{title}}</td>
+	<td>{{vendor}}</td>
+	<td>{{trip}}</td>
 	<td>{{description}}</td>
 	<td>{{amount}}</td>
 	<td>{{status}}</td>
 	<td>{{#if receiptFileURL}}
-		<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{title}}">Receipt</a>
+		<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{description}}">Receipt</a>
 		{{else}}
 		{{/if}}</td>
 	<td>{{#if isPendingApproval}}

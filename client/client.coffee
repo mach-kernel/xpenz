@@ -2,15 +2,20 @@ if Meteor.isClient
   Expenses = new Mongo.Collection 'expenses'
 
   Expenses.attachSchema new SimpleSchema
-    title: 
+    vendor: 
       type: String
-      label: 'Title'
+      label: 'Who was paid?'
       optional: false
       max: 200
     description:
       type: String
       optional: false
       label: 'Description'
+      max: 500
+    trip:
+      type: String
+      optional: true
+      label: 'Trip'
       max: 500
     amount: # TODO: consider using cents to store amount
       type: String
@@ -46,13 +51,6 @@ if Meteor.isClient
   Meteor.subscribe "expensesCreatedByUser"
   
   console.log 'hopefully we got expensive before clients'
-
-  # TODO: if user is manager, subscribe them to:
-  # Meteor.subscribe "expensesWhichRequireManagerApproval"
-
-
-  # TODO: if user is accountant, subscribe them to:
-  
 
   # default session state:
   Session.set 'loginMessage', null
@@ -105,6 +103,15 @@ if Meteor.isClient
     if Roles.userIsInRole Meteor.user()._id, 'superAccountant'
       Meteor.subscribe "expensesAllPendingApproval"
       Meteor.subscribe "expensesAllPendingReimbursement"
+      Meteor.subscribe "allUsers"
+
+    if Roles.userIsInRole Meteor.user()._id, 'accountant'
+      Meteor.subscribe "expensesAllPendingReimbursement"
+      Meteor.subscribe "allUsers"
+
+    if Roles.userIsInRole Meteor.user()._id, 'manager'
+      Meteor.subscribe "expensesWhichRequireManagerApproval"
+      Meteor.subscribe "allUsers"
 
 
   #
@@ -166,6 +173,10 @@ if Meteor.isClient
       return Template.currentData().status == 'PendingApproval'
     'isPendingReimbursement': () ->
       return Template.currentData().status == 'PendingReimbursement'
+    'getEmployee': () ->
+      k = Meteor.users.findOne
+        _id: Template.currentData().employeeId
+      return k
 
   Template.displayExpenseRow.events =
     'click .approveExpenseButton': (e) ->

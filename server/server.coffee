@@ -20,10 +20,18 @@ if Meteor.isServer
     secret: '',
     bucket: ''
 	Meteor.publish "expensesAllPendingReimbursement", () ->
-		if (Roles.userIsInRole this.userId, 'accountant') or (Roles.userIsInRole this.userId, 'superAccountant')
+		if Roles.userIsInRole this.userId, ['accountant', 'superAccountant']
 			return Expenses.find({status: 'PendingReimbursement'})
 		else
 			# not allowed to get all pending reimbursements
+			this.stop()
+			return
+
+	Meteor.publish "allUsers", () ->
+		if Roles.userIsInRole this.userId, ['accountant', 'superAccountant', 'manager']
+			# Manager, accountants and superAccountants can see all users, including their emails
+			return Meteor.users.find()
+		else
 			this.stop()
 			return
 
