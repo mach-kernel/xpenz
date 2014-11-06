@@ -25,15 +25,17 @@ Clone the app and run it with:
 - add ability to store access token and refresh token for user
 - add ability for accountant and superAccount to pay expenses and lump them by category (assume fee by default)
 - add confirm or warning when missing receipt
-- hide the expenses that are already reimbursed
+- show expenses that are already reimbursed in collapsed section
 
 Stretch:
 
+- since we want to encourage users to upload a receipt, and the receipt attachment process is the biggest pain point right now (need to click, browse, select, submit), optimize this by starting off with selecting multiple files, then creating a form for each, with the same Trip name.  Step 1: add trip (or choose existing), step 2: select receipt files, step 3: fill out information, submit
 - show total reimbursed
-
+- show nice transition animation when expense is approved or denied
 - allow undo when deleting expense
 - allow undo when approving expense
 - allow undo when rejecting expense
 - implement accountant statistics view
 - implement email alert to manager when expense filed
+- implement notifications when your expense got reimbursed or rejected
 - implement submit expense by Twilio MMS
