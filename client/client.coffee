@@ -1,5 +1,4 @@
 if Meteor.isClient
-  # declare collections:
   Expenses = new Mongo.Collection 'expenses'
 
   Expenses.attachSchema new SimpleSchema
@@ -20,7 +19,7 @@ if Meteor.isClient
     type:
       type: String
       optional: false
-      allowedValues: ['Ground Transportation', 'Office', 'Flights', 'Lodging', 'Food', 'Other']
+      allowedValues: ['Ground Transportation', 'Office Supplies', 'Flights', 'Lodging', 'Food', 'Other']
       label: 'Type'
     date:
       type: Date
@@ -46,43 +45,20 @@ if Meteor.isClient
   # TODO: validate each potential expense object on the server side
   Meteor.subscribe "expensesCreatedByUser"
   
+  console.log 'hopefully we got expensive before clients'
 
   # TODO: if user is manager, subscribe them to:
   # Meteor.subscribe "expensesWhichRequireManagerApproval"
 
+
   # TODO: if user is accountant, subscribe them to:
-  # Meteor.subscribe "expensesAllPendingApproval"
-  # Meteor.subscribe "expensesAllPendingReimbursement"
-
-  # Set AutoForm hooks:
-
-  AutoForm.hooks
-    insertExpenseForm:
-      before:
-        insert: (doc, template) ->  # set employeeId and managerId before inserting document into collection
-          hook = this
-          doc.employeeId = Meteor.user()._id
-          doc.managerId = Meteor.user().profile.managerId
-          doc.status = 'PendingApproval'
-
-          files = $("input.file_bag")[0].files
-          S3.upload files, 'receipts', (err, result) ->
-            console.log result
-            doc.receiptFileURL = result.secure_url
-            hook.result(doc)
-          
-          console.log doc
-          
-
-      after:
-        insert: (error, result, template) ->
-          console.log error, result
-
-      onError: (operation, error, template) ->
-        Session.set('insertExpenseFormError', error.message)
+  
 
   # default session state:
   Session.set 'loginMessage', null
+
+  Template.registerHelper 'isSuperAccountant', () ->
+    return Roles.userIsInRole Meteor.user()._id, 'superAccountant'
 
   # 
   # Login template
@@ -92,7 +68,11 @@ if Meteor.isClient
     'loginMessage': ->
         Session.get('loginMessage')
 
-  Template.login.events = 'click button': ->
+  Template.login.events = 'click button, keydown': (e) ->
+    # ignore any non-enter keystrokes...
+    if (e.type == 'keydown' && e.which != 13) 
+      return
+
     email = $('#email').val()
     password = $('#password').val()
 
@@ -104,17 +84,27 @@ if Meteor.isClient
     )
 
   #
-  # Expenses Template
+  # Welcome Template
   #
 
-  Template.showExpenses.helpers
+  Template.welcome.events = 
+    'click #logoutButton': () ->
+      Meteor.logout()
+
+  #
+  # showUserExpenses template
+  #
+
+  Template.showUserExpenses.helpers
     'getExpenses': () -> 
       Expenses.find
         employeeId: Meteor.user()._id
     'expensesCollection': () -> Expenses
 
-  Template.showExpenses.rendered = () ->
-    $('.receipt')
+  Template.showUserExpenses.rendered = () ->
+    if Roles.userIsInRole Meteor.user()._id, 'superAccountant'
+      Meteor.subscribe "expensesAllPendingApproval"
+      Meteor.subscribe "expensesAllPendingReimbursement"
 
 
   #
@@ -129,14 +119,78 @@ if Meteor.isClient
     'insertError': () -> Session.get('insertExpenseFormError')
     "files": () -> S3.collection.find()
 
-  # Template.addNewExpense.events =
-  #   'keypress': (e) ->
-  #     if e.keyCode == 13
-  #       $('#createExpenseButton').submit()
+  # Set AutoForm hooks:
+  AutoForm.hooks
+    insertExpenseForm:
+      before:
+        insert: (doc, template) ->  # set employeeId and managerId before inserting document into collection
+          hook = this
+          doc.employeeId = Meteor.user()._id
+          doc.managerId = Meteor.user().profile.managerId
+          doc.status = 'PendingApproval'
 
+          files = $("input.file_bag")[0].files
 
-    #Object {percent_uploaded: 100, uploading: false, url: "http://dlabshr.s3.amazonaws.com/receipts/zCr5YAGtuq9MdBCHS.png", secure_url: "https://dlabshr.s3.amazonaws.com/receipts/zCr5YAGtuq9MdBCHS.png", relative_url: "receipts/zCr5YAGtuq9MdBCHS.png"}
+          if files.length > 0
+            S3.upload files, 'receipts', (err, result) ->
+              if (err) 
+                return hook.result(false)
+              doc.receiptFileURL = result.secure_url
+              hook.result(doc)
+          else
+            return doc
+          
+      after:
+        insert: (error, result, template) ->
+          console.log error, result
+
+      onError: (operation, error, template) ->
+        Session.set('insertExpenseFormError', error.message)
+
+  #
+  # showAccountantExpenses template
+  #
+
+  Template.showSuperAccountantExpenses.helpers
+    'getExpenses': () ->
+      return Expenses.find
+        status: 
+          $in: ['PendingApproval', 'PendingReimbursement']
+
+    'expensesCollection': () -> Expenses
     
+  Template.displayExpenseRow.helpers
+    'currentExpense': () ->
+      return Template.currentData()
+    'isPendingApproval': () ->
+      return Template.currentData().status == 'PendingApproval'
+    'isPendingReimbursement': () ->
+      return Template.currentData().status == 'PendingReimbursement'
+
+  Template.displayExpenseRow.events =
+    'click .approveExpenseButton': (e) ->
+      expense = Template.currentData()
+      # update record with new status
+      Expenses.update
+        _id: expense._id
+      , $set:
+        status: 'PendingReimbursement'
+
+    'click .reimburseExpenseButton': (e) ->
+      expense = Template.currentData()
+
+      # TODO: pay expense
+
+      console.log 'now we pay', expense
+
+      #TODO: update record with new status
+      # Expenses.update
+      #   _id: expense._id
+      # , $set:
+      #   status: 'PendingReimbursement'
+
+
+# Roles: employee, manager, accountant, superAccountant
 
 # Accounts.createUser({
 #   email: email,
@@ -144,11 +198,6 @@ if Meteor.isClient
 #   profile: {
 #     name: 'John Doe',
 #     dwollaId: '812-713-9234',
-#     managerId: 'efefwef',
-#     canApproveExpenses: false,
-#     canApproveOwnExpenses: false,
-#     canReimburseExpenses: false,
-#     emailAddress: null,
-#     
+#     managerId: 'efefwef'
 #   }  
 # })

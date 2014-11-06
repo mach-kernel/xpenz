@@ -12,9 +12,15 @@
 <body>
 	<div class="container">
 		<h1 class="text-center">xpenz</h1>
-
 	  {{#if currentUser}}
-	  	{{> expenses}}
+	  	{{> welcome}}
+
+	  	{{> showUserExpenses}}
+
+	  	{{#if isSuperAccountant}}
+	  		{{> showSuperAccountantExpenses }}
+	  	{{/if}}
+
 	  {{else}}
 	 	 	{{> login}}
 	  {{/if}}
@@ -30,16 +36,49 @@
 	<button>Login</button>
 </template>
 
-<template name="expenses">
+<template name="welcome">
 	{{#with currentUser}}
 		Hi, {{profile.name}}.
 	{{/with}}
-	
+
+	<button type="button" id="logoutButton" class="btn btn-small btn-warning">Logout</button>
+</template>
+
+<template name="showUserExpenses">
 	<h3>your expenses</h3>
 	{{> addNewExpense }}
-
-	{{> showExpenses}}
 	
+	<div class="row expensesView">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Type</th>
+					<th>Title</th>
+					<th>Description</th>
+					<th>Amount</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each getExpenses}}
+					<tr>
+						<td>{{date}}</td>
+						<td>{{type}}</td>
+						<td>{{title}}</td>
+						<td>{{description}}</td>
+						<td>{{amount}}</td>
+						<td>{{status}}</td>
+						<td>{{#if receiptFileURL}}
+							<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{title}}">Receipt</a>
+							{{else}}
+							{{/if}}</td>
+						<td>{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}</td>
+					</tr>
+				{{/each}}
+			</tbody>
+		</table>
+		</div>
 </template>
 
 <template name="addNewExpense">
@@ -80,38 +119,53 @@
 {{/autoForm}}
 </template>
 
-
-<template name="showExpenses">
+<template name="showSuperAccountantExpenses">
 <div class="row expensesView">
-<table class="table">
-	<thead>
-		<tr>
-			<th>Date</th>
-			<th>Type</th>
-			<th>Title</th>
-			<th>Description</th>
-			<th>Amount</th>
-			<th>Status</th>
-		</tr>
-	</thead>
-	<tbody>
-		{{#each getExpenses}}
+	<h3>expenses to approve/reimburse</h3>
+	<table class="table">
+		<thead>
 			<tr>
-				<td>{{date}}</td>
-				<td>{{type}}</td>
-				<td>{{title}}</td>
-				<td>{{description}}</td>
-				<td>{{amount}}</td>
-				<td>{{status}}</td>
-				<td>{{#if receiptFileURL}}
-					<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{title}}">Receipt</a>
-					{{else}}
-					{{/if}}</td>
-				<td>{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}</td>
+				<th>Date</th>
+				<th>Type</th>
+				<th>Title</th>
+				<th>Description</th>
+				<th>Amount</th>
+				<th>Status</th>
 			</tr>
-		{{/each}}
-	</tbody>
-</table>
+		</thead>
+		<tbody>
+			{{#each getExpenses}}
+				{{> displayExpenseRow }}
+			{{/each}}
+		</tbody>
+	</table>
 </div>
 
+</template>
+
+<template name="displayExpenseRow">
+{{#with currentExpense}}
+<tr>
+	<td>{{date}}</td>
+	<td>{{type}}</td>
+	<td>{{title}}</td>
+	<td>{{description}}</td>
+	<td>{{amount}}</td>
+	<td>{{status}}</td>
+	<td>{{#if receiptFileURL}}
+		<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{title}}">Receipt</a>
+		{{else}}
+		{{/if}}</td>
+	<td>{{#if isPendingApproval}}
+		<button type="submit" class="btn btn-primary btn-large approveExpenseButton">Approve</button>
+	{{/if}}
+	</td>
+	<td>{{#if isPendingReimbursement}}
+		<button type="submit" class="btn btn-success btn-large reimburseExpenseButton">Pay</button>
+	{{/if}}
+	</td>
+
+	<td>{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}</td>
+</tr>
+{{/with}}
 </template>

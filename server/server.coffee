@@ -1,7 +1,6 @@
 if Meteor.isServer
-	Expenses = new Mongo.Collection 'expenses'
-
 	#publish records:
+	Expenses = new Mongo.Collection 'expenses'
 
 	Meteor.publish "expensesCreatedByUser", () ->
 		Expenses.find({employeeId: this.userId})
@@ -10,15 +9,25 @@ if Meteor.isServer
 		Expenses.find({managerId: this.userId, status: 'pendingApproval'})
 
 	Meteor.publish "expensesAllPendingApproval", () ->
-		Expenses.find({status: 'pendingApproval'})
+		if Roles.userIsInRole this.userId, 'superAccountant'
+			return Expenses.find({status: 'PendingApproval'})
+		else
+			# not allowed to get all expenses pending approval
+			this.stop()
+			return 
 
-	Meteor.publish "expensesAllPendingReimbursement", () ->
-		Expenses.find({status: 'pendingReimbursement'})
-
-	S3.config = 
     key: '',
     secret: '',
     bucket: ''
+	Meteor.publish "expensesAllPendingReimbursement", () ->
+		if (Roles.userIsInRole this.userId, 'accountant') or (Roles.userIsInRole this.userId, 'superAccountant')
+			return Expenses.find({status: 'PendingReimbursement'})
+		else
+			# not allowed to get all pending reimbursements
+			this.stop()
+			return
+
+	S3.config = 
 
 	Meteor.startup ->
 		return
