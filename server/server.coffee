@@ -1,7 +1,5 @@
 if Meteor.isServer
 	#publish records:
-	Expenses = new Mongo.Collection 'expenses'
-
 	Meteor.publish "expensesCreatedByUser", () ->
 		Expenses.find({employeeId: this.userId})
 

@@ -14,7 +14,6 @@ Clone the app and run it with:
 
 ## TODO
 
-- implement image upload
 - implement manager relationship and role
 - implement manager expense view, ability to approve or deny an expense
 - implement accountant role, 
