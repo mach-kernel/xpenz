@@ -5,8 +5,74 @@ if Meteor.isClient
   # default session state:
   Session.set 'loginMessage', null
 
+  # Define helper available to all methods:
   Template.registerHelper 'isSuperAccountant', () ->
     return Roles.userIsInRole Meteor.user()._id, 'superAccountant'
+
+  # Iron Router routes...
+
+  Router.route '/', () ->
+    this.render('mainScreen')
+
+  Router.route '/dwollaOAuthReturn', () ->
+    this.render('OAuthReturn')
+
+  #
+  # Main Template
+  #
+
+  Template.mainScreen.helpers
+    'needsToRegister': () -> Session.get('register')
+
+  # 
+  # OAuth Return iframe
+  # 
+  
+  Template.OAuthReturn.rendered = () ->
+    window.parent.postMessage('closeLightBox###' + getQueryStringParam('code'), '*')
+
+  # handle message from iframe: close it and finish OAuth:
+  window.addEventListener 'message', (e) -> 
+    if (e.data.indexOf('closeLightBox') != -1)
+      $.featherlight.current().close();
+
+      authorizationCode = e.data.split('###')[1]
+
+      Meteor.call 'OAuthFinish', authorizationCode, (error, result) ->
+        Session.set('registerInfo', result)
+        if result.resultCode == 'create-new-user'
+          # if user doesn't exist, show register template
+          Session.set('register', true)
+        else if result.resultCode == 'user-logged-in'
+          # if user exists, log the user in
+          Session.set('register', false)
+          Meteor.connection.setUserId(result.userId)
+          
+  #
+  # Register Template
+  #
+
+  Template.register.helpers
+    'name': () ->
+      Session.get('registerInfo').name
+    
+  Template.register.events =
+    'click button': (e) ->
+      email = $('#email').val()
+      managerId = $('#managerId').val()
+      registerInfo = Session.get('registerInfo')
+      name = registerInfo.name
+      auth = registerInfo.auth
+      dwollaId = registerInfo.dwollaId
+
+      # create account, then bring to dashboard:
+      Meteor.call('registerUser', email, dwollaId, name, managerId, auth, (error, newUserId) ->
+        if newUserId
+          Meteor.connection.setUserId(newUserId)
+          Session.set('register', false)
+        else
+          # TODO; handle case when registration fails...
+      )
 
   # 
   # Login template
@@ -15,6 +81,12 @@ if Meteor.isClient
   Template.login.helpers
     'loginMessage': ->
         Session.get('loginMessage')
+
+  Template.login.rendered = () ->
+    Meteor.call('OAuthGetURL', (error, result) ->
+      $('#loginClick').featherlight
+        html: '<iframe id="loginIFrame" src="' + result + '" />'
+    )
 
   Template.login.events = 'click button, keydown': (e) ->
     # ignore any non-enter keystrokes...
@@ -142,7 +214,7 @@ if Meteor.isClient
 
       # TODO: pay expense
 
-      console.log 'now we pay', expense
+      Meteor.call('reimburseExpense', expense)
 
       #TODO: update record with new status
       # Expenses.update
@@ -162,3 +234,10 @@ if Meteor.isClient
 #     managerId: 'efefwef'
 #   }  
 # })
+
+#
+# Helper functions:
+#
+
+getQueryStringParam = (sVar) ->
+  unescape(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + escape(sVar).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"))

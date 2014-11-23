@@ -25,6 +25,7 @@ Clone the app and run it with:
 - add ability for accountant and superAccount to pay expenses and lump them by category (assume fee by default)
 - add confirm or warning when missing receipt
 - show expenses that are already reimbursed in collapsed section
+- invite new user via email and specify role
 
 Stretch:
 

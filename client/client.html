@@ -6,12 +6,19 @@
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/js/bootstrap.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js"></script>
-  </style>
+
+  <link href="//cdn.rawgit.com/noelboss/featherlight/1.0.1/release/featherlight.min.css" type="text/css" rel="stylesheet" title="Featherlight Styles" />
+  <script src="//cdn.rawgit.com/noelboss/featherlight/1.0.1/release/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+
 </head>
 
 <body>
-	<div class="container">
-		<h1 class="text-center">xpenz</h1>
+	
+</body>
+
+<template name="mainScreen">
+<div class="container">
+	<h1 class="text-center">xpenz</h1>
 	  {{#if currentUser}}
 	  	{{> welcome}}
 
@@ -22,18 +29,37 @@
 	  	{{/if}}
 
 	  {{else}}
-	 	 	{{> login}}
+	 	 	
+	 	 	{{#if needsToRegister}}
+				{{> register}}
+			{{else}}
+				{{> login}}
+			{{/if}}
 	  {{/if}}
-	</div>
-</body>
+</div>
+</template>
 
 <!-- Templates  -->
+
+<template name="OAuthReturn">
+
+</template>
+
+<template name="register">
+<h3>Register a new account, <h5>{{name}}</h5></h3>
+Email: <input id="email" type="email" />
+Manager: <input id="managerId" type="managerId" />
+<button id="registerButton">register</button>
+</template>
 
 <template name="login">
 	{{ loginMessage }}
 	<input id="email" type="email" />
 	<input id="password" type="password" />
 	<button>Login</button>
+
+	<a href="#" id="loginClick">Login with Dwolla</a>
+
 </template>
 
 <template name="welcome">
