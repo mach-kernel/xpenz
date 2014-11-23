@@ -1,7 +1,15 @@
-# declare collections:
 @Expenses = new Mongo.Collection 'expenses'
 
 Expenses.attachSchema new SimpleSchema
+    status:
+      type: String
+      optional: false
+      allowedValues: ['PendingApproval', 'PendingReimbursement', 'Rejected', 'Reimbursed']
+    type:
+      type: String
+      optional: false
+      allowedValues: ['Ground Transportation', 'Office Supplies', 'Flights', 'Lodging', 'Food', 'Other']
+      label: 'Type'
     vendor: 
       type: String
       label: 'Who was paid?'
@@ -21,28 +29,32 @@ Expenses.attachSchema new SimpleSchema
       type: String
       optional: false
       label: 'Amount'
-    type:
-      type: String
-      optional: false
-      allowedValues: ['Ground Transportation', 'Office Supplies', 'Flights', 'Lodging', 'Food', 'Other']
-      label: 'Type'
     date:
       type: Date
       optional: false
       label: 'Date Incurred'
+    receiptFileURL:
+      type: String
+      optional: true
+
+    # Users involved with this expense:
+
     employeeId:
       optional: false
       type: String
     managerId:
       optional: false
       type: String
+    approvedByUserId:
+      type: String
+      optional: true
+    reimbursedByUserId:
+      type: String
+      optional: true
+    rejectedByUserId:
+      type: String
+      optional: true
     paidTransactionId:
       optional: true
       type: String
-    status:
-      type: String
-      optional: false
-      allowedValues: ['PendingApproval', 'PendingReimbursement', 'Rejected', 'Reimbursed']
-    receiptFileURL:
-      type: String
-      optional: true
+    

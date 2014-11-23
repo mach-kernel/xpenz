@@ -29,6 +29,13 @@
 	  		{{> showExpensesToReimburse }}
 	  	{{/if}}
 
+	  	{{#if isManager}}
+	  		{{> showExpensesToApprove }}
+	  	{{/if}}
+
+	  	{{#if isAccountant}}
+	  		{{> showExpensesToReimburse }}
+	  	{{/if}}
 	  {{else}}
 	 	 	
 	 	 	{{#if needsToRegister}}
@@ -104,7 +111,9 @@ Manager: <input id="managerId" type="managerId" />
 							<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{description}}">Receipt</a>
 							{{else}}
 							{{/if}}</td>
+						{{#if ableToDelete}}
 						<td>{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}</td>
+						{{/if}}
 					</tr>
 				{{/each}}
 			</tbody>
@@ -227,17 +236,16 @@ Manager: <input id="managerId" type="managerId" />
 			<button type="submit" class="btn btn-primary btn-large approveExpenseButton">Approve</button>
 		</td>
 	{{/if}}
+
+	{{#if ableToApprove}}
+		<td>
+			<button type="submit" class="btn btn-danger btn-large rejectExpenseButton">Reject</button>
+		</td>
+	{{/if}}
 	
 	{{#if ableToReimburse}}
 		<td>
 			<button type="submit" class="btn btn-success btn-large reimburseExpenseButton">Pay</button>
-		</td>
-	{{/if}}
-	
-
-	{{#if ableToDelete}}
-		<td>	
-			{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}
 		</td>
 	{{/if}}
 	

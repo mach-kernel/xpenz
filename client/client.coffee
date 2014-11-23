@@ -5,10 +5,6 @@ if Meteor.isClient
   # default session state:
   Session.set 'loginMessage', null
 
-  # Define helper available to all methods:
-  Template.registerHelper 'isSuperAccountant', () ->
-    return Roles.userIsInRole Meteor.user()._id, 'superAccountant'
-
   # Iron Router routes...
 
   Router.route '/', () ->
@@ -16,6 +12,19 @@ if Meteor.isClient
 
   Router.route '/dwollaOAuthReturn', () ->
     this.render('OAuthReturn')
+
+  # 
+  # Helpers available to all templates
+  #
+
+  Template.registerHelper 'isSuperAccountant', () ->
+    return Roles.userIsInRole Meteor.user()._id, 'superAccountant'
+
+  Template.registerHelper 'isManager', () ->
+    return Roles.userIsInRole Meteor.user()._id, 'manager'
+
+  Template.registerHelper 'isAccountant', () ->
+    return Roles.userIsInRole Meteor.user()._id, 'accountant'
 
   #
   # Main Template
@@ -120,6 +129,8 @@ if Meteor.isClient
       Expenses.find
         employeeId: Meteor.user()._id
     'expensesCollection': () -> Expenses
+    'ableToDelete': () ->
+      return (_.contains(['PendingApproval', 'PendingReimbursement'], Template.currentData().status) )
 
   Template.showUserExpenses.rendered = () ->
     if Roles.userIsInRole Meteor.user()._id, 'superAccountant'
@@ -203,8 +214,6 @@ if Meteor.isClient
       return (Template.currentData().status == 'PendingApproval') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant', 'manager']
     'ableToReimburse': () ->
       return (Template.currentData().status == 'PendingReimbursement') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant']
-    'ableToDelete': () ->
-      return (Template.currentData().status != 'Reimbursed')
     'getEmployee': () ->
       k = Meteor.users.findOne
         _id: Template.currentData().employeeId
@@ -218,17 +227,21 @@ if Meteor.isClient
         _id: expense._id
       , $set:
         status: 'PendingReimbursement'
+        approvedByUserId: Meteor.user()._id
+
+    'click .rejectExpenseButton': (e) ->
+      expense = Template.currentData()
+      # update record with new status
+      Expenses.update
+        _id: expense._id
+      , $set:
+        status: 'Rejected',
+        rejectedByUserId: Meteor.user()._id
 
     'click .reimburseExpenseButton': (e) ->
       expense = Template.currentData()
 
       Meteor.call('reimburseExpense', expense)
-
-      #TODO: update record with new status
-      # Expenses.update
-      #   _id: expense._id
-      # , $set:
-      #   status: 'PendingReimbursement'
 
 
 # Roles: employee, manager, accountant, superAccountant

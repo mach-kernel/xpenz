@@ -24,7 +24,7 @@ if Meteor.isServer
 	Meteor.methods
 		reimburseExpense: (expense) ->
 			if not Roles.userIsInRole this.userId, ['accountant', 'superAccountant']
-				throw new Meteor.Error 'reimburse-fail', 'Only accountants can reimburse expenses'
+				throw new Meteor.Error 'reimburse-fail', 'User is not allowed to reimburse expenses'
 
 			token = Meteor.user().profile.auth.access_token
 			dwolla.setToken(token)
@@ -45,8 +45,7 @@ if Meteor.isServer
 				$set:
 					paidTransactionId: txid
 					status: 'Reimbursed'
-
-			console.log txid
+					reimbursedByUserId: this.userId
 
 			return txid
 
@@ -69,7 +68,7 @@ if Meteor.isServer
 			foundUser = Meteor.users.findOne({'profile.dwollaId': accountInfo.Id})
 
 			if foundUser
-				# TODO: update the user's auth object with access token and refresh token
+				Meteor.users.update({_id: foundUser}, {$set: {'profile.auth': auth}})
 				this.setUserId(foundUser._id)
 				return { 
 					resultCode: 'user-logged-in', 
@@ -110,7 +109,7 @@ if Meteor.isServer
 		Expenses.find({employeeId: this.userId})
 
 	Meteor.publish "expensesWhichRequireManagerApproval", () ->
-		Expenses.find({managerId: this.userId, status: 'pendingApproval'})
+		Expenses.find({managerId: this.userId, status: 'PendingApproval'})
 
 	Meteor.publish "expensesAllPendingApproval", () ->
 		if Roles.userIsInRole this.userId, 'superAccountant'
