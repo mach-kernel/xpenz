@@ -1,49 +1,73 @@
 if Meteor.isServer
-	#
-	# define server methods
+	# 
+	# Constants
 	#
 
 	DWOLLA_OAUTH_REDIRECT_URL = 'http://127.0.0.1:3000/dwollaOAuthReturn'
+
+	# Set up Dwolla API bindings
 	Dwolla = Meteor.npmRequire('dwolla-node')
 	dwolla = Dwolla('JCGQXLrlfuOqdUYdTcLz3rBiCZQDRvdWIUPkw++GMuGhkem9Bo', 'g7QLwvO37aN2HoKx1amekWi8a2g7AIuPbD5C/JSLqXIcDOxfTr')
 	dwolla.sandbox = true
 
-	Future = Npm.require('fibers/future')
+	# wrap the async dwolla methods so that they are synchronous
+	dwolla.finishAuthSync = Meteor.wrapAsync dwolla.finishAuth
+	dwolla.fullAccountInfoSync = Meteor.wrapAsync dwolla.fullAccountInfo
+	dwolla.sendSync = Meteor.wrapAsync dwolla.send
+
+	# Future = Npm.require('fibers/future')
+
+	#
+	# define server methods
+	#
 
 	Meteor.methods
 		reimburseExpense: (expense) ->
-			console.log 'trying to pay expense', expense
+			token = Meteor.user().profile.auth.access_token
+			dwolla.setToken(token)
+			employeeToBeReimbursed = Meteor.users.findOne({_id: expense.employeeId})
+			destinationId = employeeToBeReimbursed.profile.dwollaId
+			console.log 'trying to pay expense', expense, token, destinationId
+
+			txid = dwolla.sendSync(9999, destinationId, expense.amount, {
+				notes: 'Expense ID:' + expense._id,
+				assumeCosts: true
+			})
+
+			if !txid
+				throw new Meteor.Error 'reimburse-fail', 'Could not send Dwolla payment'
+
+			# update Expense with transaction id and new status
+			Expenses.update {_id: expense._id}, 
+				$set:
+					paidTransactionId: txid
+					status: 'Reimbursed'
+
+			console.log txid
+
+			return txid
 
 		OAuthGetURL: () ->
 			dwolla.authUrl(DWOLLA_OAUTH_REDIRECT_URL)
-			
+
 		OAuthFinish: (code) ->
 			if !code
 				throw new Meteor.Error 'oauth-fail', 'Could not authorize account'
 
-			dwolla.finishAuthSync = Meteor.wrapAsync dwolla.finishAuth
-			dwolla.fullAccountInfoSync = Meteor.wrapAsync dwolla.fullAccountInfo
-
+			# try to fetch access token
 			auth = dwolla.finishAuthSync(code, DWOLLA_OAUTH_REDIRECT_URL)
 
 			if auth && auth.error == 'access_denied'
 				throw new Meteor.Error 'oauth-fail', 'Could not authorize account, could not get token'	
 				
+			# Call the Dwolla Account Info API to get the user's Dwolla ID, and see if a user with that ID already has an account
 			dwolla.setToken(auth.access_token)
 			accountInfo = dwolla.fullAccountInfoSync()	
-
-			console.log 'Got account info'
-
-			dwollaId = accountInfo.Id
-			
-			foundUser = Meteor.users.findOne({'profile.dwollaId': dwollaId})
+			foundUser = Meteor.users.findOne({'profile.dwollaId': accountInfo.Id})
 
 			if foundUser
 				# TODO: update the user's auth object with access token and refresh token
 				this.setUserId(foundUser._id)
-
-				console.log 'Logging user in'
-
 				return { 
 					resultCode: 'user-logged-in', 
 					auth: auth,
