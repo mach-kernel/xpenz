@@ -25,7 +25,8 @@
 	  	{{> showUserExpenses}}
 
 	  	{{#if isSuperAccountant}}
-	  		{{> showSuperAccountantExpenses }}
+	  		{{> showExpensesToApprove }}
+	  		{{> showExpensesToReimburse }}
 	  	{{/if}}
 
 	  {{else}}
@@ -53,10 +54,12 @@ Manager: <input id="managerId" type="managerId" />
 </template>
 
 <template name="login">
+	<!-- 
 	{{ loginMessage }}
 	<input id="email" type="email" />
 	<input id="password" type="password" />
 	<button>Login</button>
+	-->
 
 	<a href="#" id="loginClick">Login with Dwolla</a>
 
@@ -149,9 +152,34 @@ Manager: <input id="managerId" type="managerId" />
 {{/autoForm}}
 </template>
 
-<template name="showSuperAccountantExpenses">
+<template name="showExpensesToApprove">
 <div class="row expensesView">
-	<h3>expenses to approve/reimburse</h3>
+	<h3>expenses to approve</h3>
+	<table class="table">
+		<thead>
+			<tr>	
+				<th>Employee</th>
+				<th>Date</th>
+				<th>Type</th>
+				<th>Vendor</th>
+				<th>Trip</th>
+				<th>Description</th>
+				<th>Amount</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each getExpenses}}
+				{{> displayExpenseRow }}
+			{{/each}}
+		</tbody>
+	</table>
+</div>
+</template>
+
+<template name="showExpensesToReimburse">
+<div class="row expensesView">
+	<h3>expenses to reimburse</h3>
 	<table class="table">
 		<thead>
 			<tr>	
@@ -186,20 +214,33 @@ Manager: <input id="managerId" type="managerId" />
 	<td>{{description}}</td>
 	<td>{{amount}}</td>
 	<td>{{status}}</td>
-	<td>{{#if receiptFileURL}}
-		<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{description}}">Receipt</a>
-		{{else}}
-		{{/if}}</td>
-	<td>{{#if isPendingApproval}}
-		<button type="submit" class="btn btn-primary btn-large approveExpenseButton">Approve</button>
-	{{/if}}
-	</td>
-	<td>{{#if isPendingReimbursement}}
-		<button type="submit" class="btn btn-success btn-large reimburseExpenseButton">Pay</button>
-	{{/if}}
+	<td>
+		{{#if receiptFileURL}}
+			<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{description}}">Receipt</a>
+		{{else}} 
+			no receipt
+		{{/if}}
 	</td>
 
-	<td>{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}</td>
+	{{#if ableToApprove}}
+		<td>
+			<button type="submit" class="btn btn-primary btn-large approveExpenseButton">Approve</button>
+		</td>
+	{{/if}}
+	
+	{{#if ableToReimburse}}
+		<td>
+			<button type="submit" class="btn btn-success btn-large reimburseExpenseButton">Pay</button>
+		</td>
+	{{/if}}
+	
+
+	{{#if ableToDelete}}
+		<td>	
+			{{> quickRemoveButton collection=expensesCollection _id=this._id class="btn btn-danger"}}
+		</td>
+	{{/if}}
+	
 </tr>
 {{/with}}
 </template>

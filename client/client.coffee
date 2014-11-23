@@ -27,7 +27,7 @@ if Meteor.isClient
   # 
   # OAuth Return iframe
   # 
-  
+
   Template.OAuthReturn.rendered = () ->
     window.parent.postMessage('closeLightBox###' + getQueryStringParam('code'), '*')
 
@@ -177,24 +177,34 @@ if Meteor.isClient
         Session.set('insertExpenseFormError', error.message)
 
   #
-  # showAccountantExpenses template
+  # showExpensesToApprove template
   #
 
-  Template.showSuperAccountantExpenses.helpers
+  Template.showExpensesToApprove.helpers
     'getExpenses': () ->
       return Expenses.find
         status: 
-          $in: ['PendingApproval', 'PendingReimbursement']
+          $in: ['PendingApproval']
+
+    'expensesCollection': () -> Expenses
+
+  Template.showExpensesToReimburse.helpers
+    'getExpenses': () ->
+      return Expenses.find
+        status: 
+          $in: ['PendingReimbursement']
 
     'expensesCollection': () -> Expenses
     
   Template.displayExpenseRow.helpers
     'currentExpense': () ->
       return Template.currentData()
-    'isPendingApproval': () ->
-      return Template.currentData().status == 'PendingApproval'
-    'isPendingReimbursement': () ->
-      return Template.currentData().status == 'PendingReimbursement'
+    'ableToApprove': () ->
+      return (Template.currentData().status == 'PendingApproval') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant', 'manager']
+    'ableToReimburse': () ->
+      return (Template.currentData().status == 'PendingReimbursement') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant']
+    'ableToDelete': () ->
+      return (Template.currentData().status != 'Reimbursed')
     'getEmployee': () ->
       k = Meteor.users.findOne
         _id: Template.currentData().employeeId
@@ -212,8 +222,6 @@ if Meteor.isClient
     'click .reimburseExpenseButton': (e) ->
       expense = Template.currentData()
 
-      # TODO: pay expense
-
       Meteor.call('reimburseExpense', expense)
 
       #TODO: update record with new status
@@ -224,16 +232,6 @@ if Meteor.isClient
 
 
 # Roles: employee, manager, accountant, superAccountant
-
-# Accounts.createUser({
-#   email: email,
-#   password: password,
-#   profile: {
-#     name: 'John Doe',
-#     dwollaId: '812-713-9234',
-#     managerId: 'efefwef'
-#   }  
-# })
 
 #
 # Helper functions:

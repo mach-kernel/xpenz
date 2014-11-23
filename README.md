@@ -19,9 +19,7 @@ Clone the app and run it with:
 - implement accountant role, 
 - implement accountant expense view, ability to pay out groups of approved expenses, ability to approve expenses
 - add ability for user, accountant, superAccountant to edit expense
-- add ability to OAuth to login
 - add status of 'Rejected' and allow manager, superAccountant to reject expenses
-- add ability to store access token and refresh token for user
 - add ability for accountant and superAccount to pay expenses and lump them by category (assume fee by default)
 - add confirm or warning when missing receipt
 - show expenses that are already reimbursed in collapsed section

@@ -23,6 +23,9 @@ if Meteor.isServer
 
 	Meteor.methods
 		reimburseExpense: (expense) ->
+			if not Roles.userIsInRole this.userId, ['accountant', 'superAccountant']
+				throw new Meteor.Error 'reimburse-fail', 'Only accountants can reimburse expenses'
+
 			token = Meteor.user().profile.auth.access_token
 			dwolla.setToken(token)
 			employeeToBeReimbursed = Meteor.users.findOne({_id: expense.employeeId})
