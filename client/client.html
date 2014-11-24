@@ -18,8 +18,8 @@
 
 <template name="mainScreen">
 <div class="container">
-	<h1 class="text-center">xpenz</h1>
 	  {{#if currentUser}}
+	  	<h1 class="text-center" id="headerTitle">xpenz</h1>
 	  	{{#if showAdminSettings }}
   			{{> adminSettings}}
   		{{else}}
@@ -28,7 +28,6 @@
 		  	{{> showUserExpenses}}
 
 		  	{{#if isSuperAccountant}}
-		  		<button id="adminSettingsShowButton">Admin Settings</button>
 		  		{{> showExpensesToApprove }}
 		  		{{> showExpensesToReimburse }}
 		  	{{/if}}
@@ -107,6 +106,10 @@ Manager: <input id="managerId" type="managerId" />
 	<button>Login</button>
 	-->
 
+	<div class="center-block" id="frontTitle">
+		xpenz
+	</div>
+
 	<a href="#" id="loginClick">Login with Dwolla</a>
 
 </template>
@@ -117,6 +120,10 @@ Manager: <input id="managerId" type="managerId" />
 	{{/with}}
 
 	<button type="button" id="logoutButton" class="btn btn-small btn-warning">Logout</button>
+
+	{{#if isSuperAccountant}}
+		<button id="adminSettingsShowButton" class="btn btn-small">Admin Settings</button>
+	{{/if}}
 </template>
 
 <template name="showUserExpenses">
@@ -222,6 +229,7 @@ Manager: <input id="managerId" type="managerId" />
 	<table class="table">
 		<thead>
 			<tr>	
+				<th></th>
 				<th>Employee</th>
 				<th>Date</th>
 				<th>Type</th>
@@ -247,6 +255,7 @@ Manager: <input id="managerId" type="managerId" />
 	<table class="table">
 		<thead>
 			<tr>	
+				<th></th>
 				<th>Employee</th>
 				<th>Date</th>
 				<th>Type</th>
@@ -259,7 +268,6 @@ Manager: <input id="managerId" type="managerId" />
 		</thead>
 		<tbody>
 			{{#each getExpenses}}
-				<input type="checkbox" class="expenseToReimburseCheckbox" value="{{_id}}">
 				{{> displayExpenseRow }}
 			{{/each}}
 		</tbody>
@@ -281,6 +289,11 @@ Manager: <input id="managerId" type="managerId" />
 <template name="displayExpenseRow">
 {{#with currentExpense}}
 <tr>
+	<td>
+	{{#if ableToReimburse}}
+		<input type="checkbox" class="expenseToReimburseCheckbox" value="{{_id}}">
+	{{/if}}
+	</td>
 	<td>{{#with getEmployee}} {{profile.name}} {{/with}}</td>
 	<td>{{formatDate date}}</td>
 	<td>{{type}}</td>
