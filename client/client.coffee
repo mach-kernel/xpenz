@@ -199,6 +199,10 @@ if Meteor.isClient
 
     'expensesCollection': () -> Expenses
 
+  #
+  # showExpensesToReimburse template
+  #
+
   Template.showExpensesToReimburse.helpers
     'getExpenses': () ->
       return Expenses.find
@@ -206,6 +210,23 @@ if Meteor.isClient
           $in: ['PendingReimbursement']
 
     'expensesCollection': () -> Expenses
+    'reimburseError': () -> Session.get('reimburseError')
+
+  Template.showExpensesToReimburse.events =
+    'click .reimburseCheckedExpensesButton': (e) ->
+      expenses = $('.expenseToReimburseCheckbox:checked').map( (el) -> this.value ).get()
+      pin = $('#PIN').val()
+
+      Meteor.call 'reimburseCheckedExpenses', expenses, pin, (error, result) ->
+        if error
+          Session.set('reimburseError', error.reason)
+        $.unblockUI();
+
+      $.blockUI({message: 'Making it rain.  Hold your horses...'});
+
+  #
+  # displayExpenseRow template
+  #
     
   Template.displayExpenseRow.helpers
     'currentExpense': () ->

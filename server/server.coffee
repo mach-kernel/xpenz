@@ -26,28 +26,42 @@ if Meteor.isServer
 			if not Roles.userIsInRole this.userId, ['accountant', 'superAccountant']
 				throw new Meteor.Error 'reimburse-fail', 'User is not allowed to reimburse expenses'
 
-			token = Meteor.user().profile.auth.access_token
-			dwolla.setToken(token)
-			employeeToBeReimbursed = Meteor.users.findOne({_id: expense.employeeId})
-			destinationId = employeeToBeReimbursed.profile.dwollaId
-			console.log 'trying to pay expense', expense, token, destinationId
+			pin = 9999
+			payment = 
+				employeeId: expense.employeeId
+				expenseType: expense.type
+				expenses: [expense]
+			paymentId = processPayment(payment, Meteor.user(), pin)
+			
+			return paymentId
 
-			txid = dwolla.sendSync(9999, destinationId, expense.amount, {
-				notes: 'Expense ID:' + expense._id,
-				assumeCosts: true
-			})
+		reimburseCheckedExpenses: (expenseIds, pin) ->
+			if not Roles.userIsInRole this.userId, ['accountant', 'superAccountant']
+				throw new Meteor.Error 'reimburse-fail', 'User is not allowed to reimburse expenses'
 
-			if !txid
-				throw new Meteor.Error 'reimburse-fail', 'Could not send Dwolla payment'
+			expenses = Expenses.find(
+				_id: {$in: expenseIds}
+				status: 'PendingReimbursement'
+			).fetch()
 
-			# update Expense with transaction id and new status
-			Expenses.update {_id: expense._id}, 
-				$set:
-					paidTransactionId: txid
-					status: 'Reimbursed'
-					reimbursedByUserId: this.userId
+			# Create payment objects: lump expenses into batches based on type and employee
+			payments = []
+			employeesToExpenses = _.groupBy(expenses, (expense) -> expense.employeeId)
+			employeesToExpensesByType = _.each _.keys(employeesToExpenses), (employeeId) ->
+				expensesByType = _.groupBy(employeesToExpenses[employeeId], (expense) -> expense.type)
+				_.each _.keys(expensesByType), (type) ->
+					payments.push {
+						employeeId: employeeId,
+						expenseType: type,
+						expenses: expensesByType[type]
+					}
 
-			return txid
+			console.log(payments)
+
+			# process those payments
+			payments.forEach((payment) -> processPayment(payment, Meteor.user(), pin))
+
+			return true
 
 		OAuthGetURL: () ->
 			dwolla.authUrl(DWOLLA_OAUTH_REDIRECT_URL)
@@ -68,7 +82,7 @@ if Meteor.isServer
 			foundUser = Meteor.users.findOne({'profile.dwollaId': accountInfo.Id})
 
 			if foundUser
-				Meteor.users.update({_id: foundUser}, {$set: {'profile.auth': auth}})
+				Meteor.users.update({_id: foundUser._id}, {$set: {'profile.auth': auth}})
 				this.setUserId(foundUser._id)
 				return { 
 					resultCode: 'user-logged-in', 
@@ -100,6 +114,56 @@ if Meteor.isServer
 
 			return userId
 
+	#
+	# Payment methods:
+	#
+
+	processPayment = (payment, sendingUser, pin) ->
+		token = sendingUser.profile.auth.access_token
+		dwolla.setToken(token)
+
+		employeeToBeReimbursed = Meteor.users.findOne({_id: payment.employeeId})
+		destinationId = employeeToBeReimbursed.profile.dwollaId
+
+		# sum up all expenses in payment:
+		totalAmount = payment.expenses
+			.map((expense) -> parseFloat(expense.amount))
+			.reduce((n, r) -> return n + r)
+
+		# send payment
+		try
+			txid = dwolla.sendSync(pin, destinationId, totalAmount, {
+				notes: 'Expense reimbursement for ' + payment.expenseType + ' expenses',
+				assumeCosts: true
+			})
+		catch e 
+			throw new Meteor.Error 'payment-fail', 'Could not send Dwolla payment: ' + e.message
+
+		if !txid
+			throw new Meteor.Error 'payment-fail', 'Could not send Dwolla payment'
+
+		# record payment:
+		paymentId = Payments.insert
+			employeeId: employeeToBeReimbursed._id
+			expenseType: payment.expenseType
+			total: totalAmount
+			dwollaTransactionId: txid
+			createdDate: new Date()
+
+		# update expenses, add payment id and new status
+		expenseIds = payment.expenses.map((e) -> e._id)
+		Expenses.update
+			_id: 
+				$in: expenseIds
+		, 
+			$set:
+				paymentId: paymentId
+				status: 'Reimbursed'
+				reimbursedByUserId: sendingUser._id
+		,
+			multi: true
+
+		return paymentId
 
 	#
 	# publish records

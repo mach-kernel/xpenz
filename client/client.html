@@ -6,6 +6,7 @@
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/js/bootstrap.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.66.0-2013.10.09/jquery.blockUI.min.js"></script>
 
   <link href="//cdn.rawgit.com/noelboss/featherlight/1.0.1/release/featherlight.min.css" type="text/css" rel="stylesheet" title="Featherlight Styles" />
   <script src="//cdn.rawgit.com/noelboss/featherlight/1.0.1/release/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
@@ -13,7 +14,6 @@
 </head>
 
 <body>
-	
 </body>
 
 <template name="mainScreen">
@@ -204,10 +204,21 @@ Manager: <input id="managerId" type="managerId" />
 		</thead>
 		<tbody>
 			{{#each getExpenses}}
+				<input type="checkbox" class="expenseToReimburseCheckbox" value="{{_id}}">
 				{{> displayExpenseRow }}
 			{{/each}}
 		</tbody>
 	</table>
+
+	<div class="row">
+		{{#if reimburseError }}
+			<div class="alert alert-danger" role="alert">{{ reimburseError }}</div>
+		{{/if}}
+		Reimburse the checked ones:
+		<input type="password" id="PIN" placeholder="PIN" length="4" />
+		<button type="submit" class="btn btn-primary btn-large reimburseCheckedExpensesButton">Reimburse</button>
+	</div>
+	
 </div>
 
 </template>

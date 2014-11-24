@@ -14,16 +14,14 @@ Clone the app and run it with:
 
 ## TODO
 
-- implement manager relationship and role
-- implement manager expense view, ability to approve or deny an expense
-- implement accountant role, 
-- implement accountant expense view, ability to pay out groups of approved expenses, ability to approve expenses
+- implement ability to pay out groups of approved expenses
+- invite new user via email and specify role
+
 - add ability for user, accountant, superAccountant to edit expense
-- add status of 'Rejected' and allow manager, superAccountant to reject expenses
 - add ability for accountant and superAccount to pay expenses and lump them by category (assume fee by default)
 - add confirm or warning when missing receipt
 - show expenses that are already reimbursed in collapsed section
-- invite new user via email and specify role
+
 
 Stretch:
 
@@ -37,3 +35,5 @@ Stretch:
 - implement email alert to manager when expense filed
 - implement notifications when your expense got reimbursed or rejected
 - implement submit expense by Twilio MMS
+- create Organization collection with access token of dwolla account to pay from.  Employees have an Organization ID, and accountants and managers can only interact with employees of their organization
+- auth using Google instead of Dwolla.  Only accountants need Dwolla -- let them connect their account.
