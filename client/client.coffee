@@ -26,6 +26,12 @@ if Meteor.isClient
   Template.registerHelper 'isAccountant', () ->
     return Roles.userIsInRole Meteor.user()._id, 'accountant'
 
+  Template.registerHelper 'formatDate', (date) ->
+    return date.toLocaleDateString()
+
+  Template.registerHelper 'formatAmount', (amount) ->
+    return parseFloat(amount).toFixed(2)
+
   #
   # Main Template
   #
@@ -169,6 +175,8 @@ if Meteor.isClient
           doc.managerId = Meteor.user().profile.managerId
           doc.status = 'PendingApproval'
 
+          Session.set 'lastSubmittedExpense', doc
+
           files = $("input.file_bag")[0].files
 
           if files.length > 0
@@ -182,10 +190,22 @@ if Meteor.isClient
           
       after:
         insert: (error, result, template) ->
-          console.log error, result
+          expense = Session.get 'lastSubmittedExpense'
+          $('input[name="type"]').val(expense.type)
+          $('input[name="trip"]').val(expense.trip)
+          $('input[name="vendor"]').val(expense.vendor)
+          $('input[name="date"]').val expense.date.toISOString().split('T')[0]
 
       onError: (operation, error, template) ->
         Session.set('insertExpenseFormError', error.message)
+
+  # File input field, show file name when selected
+  $(document).on 'change', '.btn-file :file', () ->
+    input = $(this)
+    label = input.val().replace(/\\/g, '/').replace(/.*\//, '')
+    
+    fileInputField = $(this).parents('.input-group').find(':text')
+    fileInputField.val(label)
 
   #
   # showExpensesToApprove template
