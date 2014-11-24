@@ -20,24 +20,28 @@
 <div class="container">
 	<h1 class="text-center">xpenz</h1>
 	  {{#if currentUser}}
-	  	{{> welcome}}
+	  	{{#if showAdminSettings }}
+  			{{> adminSettings}}
+  		{{else}}
+  			{{> welcome}}
 
-	  	{{> showUserExpenses}}
+		  	{{> showUserExpenses}}
 
-	  	{{#if isSuperAccountant}}
-	  		{{> showExpensesToApprove }}
-	  		{{> showExpensesToReimburse }}
-	  	{{/if}}
+		  	{{#if isSuperAccountant}}
+		  		<button id="adminSettingsShowButton">Admin Settings</button>
+		  		{{> showExpensesToApprove }}
+		  		{{> showExpensesToReimburse }}
+		  	{{/if}}
 
-	  	{{#if isManager}}
-	  		{{> showExpensesToApprove }}
-	  	{{/if}}
+		  	{{#if isManager}}
+		  		{{> showExpensesToApprove }}
+		  	{{/if}}
 
-	  	{{#if isAccountant}}
-	  		{{> showExpensesToReimburse }}
-	  	{{/if}}
+		  	{{#if isAccountant}}
+		  		{{> showExpensesToReimburse }}
+		  	{{/if}}
+  		{{/if}}
 	  {{else}}
-	 	 	
 	 	 	{{#if needsToRegister}}
 				{{> register}}
 			{{else}}
@@ -50,7 +54,42 @@
 <!-- Templates  -->
 
 <template name="OAuthReturn">
+</template>
 
+<template name="adminSettings">
+<h2>invite users</h2>
+Email: <input id="email" type="email" />
+Role: <select name="role">
+  <option value="employee">Employee</option> 
+  <option value="manager" selected>Manager</option>
+  <option value="accountant">Accountant</option>
+  <option value="superAccountant">Super Accountant</option>
+</select>
+<h2>edit users</h2>
+<div class="editUsersTable table">
+	<div>
+		<div>name</div>
+		<div>email</div>
+		<div>manager</div>
+		<div>role</div>
+	</div>
+	{{#each users}}
+		{{#autoForm collection="Meteor.users" doc=this id=generateEditUserFormId type="update" schema=userSchema validation="none"}}
+		<div>{{ profile.name }}</div>
+		<div>{{#each emails }} {{address}} {{/each}}</div>
+		<div>{{> afFieldInput name='profile.managerId' options=getManagerOptions }}</div>
+		<div>
+			{{> afArrayField name='roles'}}
+		</div>
+
+		<div>
+			<button type="submit" class="btn btn-primary">Edit</button>
+		</div>
+		{{/autoForm}}
+	{{/each}}
+</div>
+
+<button id="adminSettingsHideButton">Back</button>
 </template>
 
 <template name="register">

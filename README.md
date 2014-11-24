@@ -14,14 +14,9 @@ Clone the app and run it with:
 
 ## TODO
 
-- implement ability to pay out groups of approved expenses
-- invite new user via email and specify role
-
+- invite new user via email
 - add ability for user, accountant, superAccountant to edit expense
-- add ability for accountant and superAccount to pay expenses and lump them by category (assume fee by default)
-- add confirm or warning when missing receipt
 - show expenses that are already reimbursed in collapsed section
-
 
 Stretch:
 

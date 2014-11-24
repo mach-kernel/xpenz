@@ -1,9 +1,11 @@
 if Meteor.isClient
   # TODO: validate each potential expense object on the server side
   Meteor.subscribe "expensesCreatedByUser"
+  Meteor.subscribe "allUsers"
   
   # default session state:
   Session.set 'loginMessage', null
+  Session.set 'showAdminSettings', false
 
   # Iron Router routes...
 
@@ -32,12 +34,45 @@ if Meteor.isClient
   Template.registerHelper 'formatAmount', (amount) ->
     return parseFloat(amount).toFixed(2)
 
+  Template.registerHelper 'userSchema', () ->
+    return userSchema
+
+  Template.registerHelper 'generateEditUserFormId', () ->
+    return 'editUserForm-' + Template.currentData()._id
+
+  Template.registerHelper 'getManagerOptions', () ->
+    managers = Roles.getUsersInRole('manager').fetch()
+    return managers.map (manager) ->
+      return {label: manager.profile.name, value: manager._id}
+
   #
   # Main Template
   #
 
+  Template.mainScreen.events =
+    'click #adminSettingsShowButton': () ->
+      Session.set('showAdminSettings', true)
+    'click #adminSettingsHideButton': () ->
+      Session.set('showAdminSettings', false)
+
   Template.mainScreen.helpers
     'needsToRegister': () -> Session.get('register')
+    'showAdminSettings': () -> Session.get('showAdminSettings')
+
+  #
+  # adminSettings template
+  #
+
+  Template.adminSettings.helpers
+    'users': () -> Meteor.users.find()
+    'getManager': () ->
+      managerId = Template.currentData().profile.managerId
+      return Meteor.users.findOne({_id: managerId})
+    'role': () ->
+      user = Template.currentData()
+      return Roles.getRolesForUser user
+    'isUsersManager': () ->
+      return true
 
   # 
   # OAuth Return iframe
