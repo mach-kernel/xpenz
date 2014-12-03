@@ -14,14 +14,14 @@ Clone the app and run it with:
 
 ## TODO
 
-- invite new user via email
 - add ability for user, accountant, superAccountant to edit expense
-- show expenses that are already reimbursed in collapsed section
+- add ability to change funding source for accountant and superAccountant
 
 Stretch:
 
 - since we want to encourage users to upload a receipt, and the receipt attachment process is the biggest pain point right now (need to click, browse, select, submit), optimize this by starting off with selecting multiple files, then creating a form for each, with the same Trip name.  Step 1: add trip (or choose existing), step 2: select receipt files, step 3: fill out information, submit
 - show total reimbursed
+- show expenses that are already reimbursed in collapsed section
 - show nice transition animation when expense is approved or denied
 - allow undo when deleting expense
 - allow undo when approving expense

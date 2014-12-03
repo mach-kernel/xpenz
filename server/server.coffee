@@ -22,19 +22,6 @@ if Meteor.isServer
 	#
 
 	Meteor.methods
-		reimburseExpense: (expense) ->
-			if not Roles.userIsInRole this.userId, ['accountant', 'superAccountant']
-				throw new Meteor.Error 'reimburse-fail', 'User is not allowed to reimburse expenses'
-
-			pin = 9999
-			payment = 
-				employeeId: expense.employeeId
-				expenseType: expense.type
-				expenses: [expense]
-			paymentId = processPayment(payment, Meteor.user(), pin)
-			
-			return paymentId
-
 		reimburseCheckedExpenses: (expenseIds, pin) ->
 			if not Roles.userIsInRole this.userId, ['accountant', 'superAccountant']
 				throw new Meteor.Error 'reimburse-fail', 'User is not allowed to reimburse expenses'
@@ -78,7 +65,7 @@ if Meteor.isServer
 				
 			# Call the Dwolla Account Info API to get the user's Dwolla ID, and see if a user with that ID already has an account
 			dwolla.setToken(auth.access_token)
-			accountInfo = dwolla.fullAccountInfoSync()	
+			accountInfo = dwolla.fullAccountInfoSync()
 			foundUser = Meteor.users.findOne({'profile.dwollaId': accountInfo.Id})
 
 			if foundUser
