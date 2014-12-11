@@ -8,6 +8,14 @@ Make sure you have meteor installed:
 
 `curl https://install.meteor.com | /bin/sh`
 
+You'll need an S3 bucket and credentials.  Set the following environment variables:
+
+```
+XPENZ_S3_KEY={ s3 key }
+XPENZ_S3_SECRET= { s3 secret }
+XPENZ_S3_BUCKET= { s3 bucket name }
+```
+
 Clone the app and run it with:
 
 `meteor`

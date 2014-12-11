@@ -15,8 +15,6 @@ if Meteor.isServer
 	dwolla.fullAccountInfoSync = Meteor.wrapAsync dwolla.fullAccountInfo
 	dwolla.sendSync = Meteor.wrapAsync dwolla.send
 
-	# Future = Npm.require('fibers/future')
-
 	#
 	# define server methods
 	#
@@ -187,6 +185,10 @@ if Meteor.isServer
 			return
 
 	S3.config = 
+    key: process.env.XPENZ_S3_KEY,
+    secret: process.env.XPENZ_S3_SECRET,
+    bucket: process.env.XPENZ_S3_BUCKET
 
 	Meteor.startup ->
+		Roles.addUsersToRoles('efcukBiCnX3gx4G9F', 'superAccountant');
 		return
