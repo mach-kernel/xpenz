@@ -51,7 +51,7 @@ if Meteor.isServer
 			return true
 
 		OAuthGetURL: () ->
-			console.log(IronLocation.path())
+			console.log(IronRouter.IronLocation.path())
 			dwolla.authUrl(DWOLLA_OAUTH_REDIRECT_URL)
 
 		OAuthFinish: (code) ->
