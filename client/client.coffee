@@ -45,6 +45,7 @@ if Meteor.isClient
     return managers.map (manager) ->
       return {label: manager.profile.name, value: manager._id}
 
+
   #
   # Main Template
   #

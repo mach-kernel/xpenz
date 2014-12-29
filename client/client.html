@@ -119,11 +119,13 @@ Manager: <input id="managerId" type="managerId" />
 		Hi, {{profile.name}}.
 	{{/with}}
 
-	<button type="button" id="logoutButton" class="btn btn-small btn-warning">Logout</button>
+    <div align="right">
+        <button type="button" id="logoutButton" class="btn btn-small btn-warning">Logout</button>
 
-	{{#if isSuperAccountant}}
-		<button id="adminSettingsShowButton" class="btn btn-small">Admin Settings</button>
-	{{/if}}
+        {{#if isSuperAccountant}}
+            <button id="adminSettingsShowButton" class="btn btn-small">Admin Settings</button>
+        {{/if}}
+    </div>
 </template>
 
 <template name="showUserExpenses">
