@@ -5,7 +5,10 @@ if Meteor.isServer
 	
 	
 	## TODO: Use IronRouter or similar to fix this
-	DWOLLA_OAUTH_REDIRECT_URL = 'http://localhost:3000/dwollaOAuthReturn'
+    if (process.env.ROOT_URL)
+        DWOLLA_OAUTH_REDIRECT_URL = process.env.ROOT_URL + '/dwollaOAuthReturn'
+    else
+        DWOLLA_OAUTH_REDIRECT_URL = 'http://localhsot:3000/dwollaOAuthReturn'
 
 	# Set up Dwolla API bindings
 	Dwolla = Meteor.npmRequire('dwolla-node')
