@@ -16,7 +16,10 @@ alanning:roles
 meteorhacks:npm
 
 
-npm-container
+#npm-container
 iron:router
 meteorhacks:kadira
 
+
+npm-container
+email
