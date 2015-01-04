@@ -162,9 +162,9 @@ if Meteor.isServer
             # TODO: allow user to select which e-mail receives notifications
             Email.send
             ({
-                from: 'xpenz@dwolla.com',
-                to: 'bla',#employeeToBeReimbursed.emails[0]['address'],
-                subject: 'xpenz: Your expense has been reimbursed!',
+#                 from: 'xpenz@dwolla.com',
+#                 to: employeeToBeReimbursed.emails[0]['address'],
+#                 subject: 'xpenz: Your expense has been reimbursed!',
 #                 text: 'Hello ' + employeeToBeReimbursed.profile.name + '\n'+ 'An expense you submitted for ' + payment.expenseType
 #                 + ' has been reimbursed in the amount of $' + totalAmount
 #                 + ' and should now be available in your Dwolla balance!'
