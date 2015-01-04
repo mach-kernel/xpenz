@@ -164,9 +164,9 @@ if Meteor.isServer
                 from: "xpenz@dwolla.com",
                 to: employeeToBeReimbursed.emails[0]['address'],
                 subject: "xpenz: Your expense has been reimbursed!",
-                text: 'Hello ' + employeeToBeReimbursed.profile.name + '!\n'+ 'An expense you submitted for ' + payment.expenseType
-                + ' has been reimbursed in the amount of $' + totalAmount
-                + ' and should now be available in your Dwolla balance!'
+                text: 'Hello ' + employeeToBeReimbursed.profile.name #+ '!\n'+ 'An expense you submitted for ' + payment.expenseType
+                #+ ' has been reimbursed in the amount of $' + totalAmount
+                #+ ' and should now be available in your Dwolla balance!'
             })
 
 	    return paymentId
