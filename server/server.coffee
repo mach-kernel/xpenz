@@ -22,12 +22,18 @@ if Meteor.isServer
     
     # Define AWS config    
     S3.config = 
-      key: process.env.XPENZ_S3_KEY,
-      secret: process.env.XPENZ_S3_SECRET,
-      bucket: process.env.XPENZ_S3_BUCKET
+        key: process.env.XPENZ_S3_KEY,
+        secret: process.env.XPENZ_S3_SECRET,
+        bucket: process.env.XPENZ_S3_BUCKET
+
+    # Define a small 'enum' for sending email messages
+    mailType = 
+        APPROVED: 0,
+        REJECTED: 1,
+        REIMBURSED: 2
 
     #
-    # define server methods
+    # OAuth and registration
     #
 
     Meteor.methods
@@ -110,70 +116,98 @@ if Meteor.isServer
 
             return userId
 
-    #
-    # Payment methods:
-    #
+        #
+        # Email method:
+        #
+        # userId: user to send mail to
+        # action: enum to identify event clearly
+        #
 
-    processPayment = (payment, sendingUser, pin) ->
-        token = sendingUser.profile.auth.access_token
-        dwolla.setToken(token)
+        sendMail: (userId, type, action, amount=false) ->
+            console.log('sm called')
+            dest = Meteor.users.findOne({_id: userId})
+            kw = ''
+            news = ''
 
-        employeeToBeReimbursed = Meteor.users.findOne({_id: payment.employeeId})
-        destinationId = employeeToBeReimbursed.profile.dwollaId
+            switch action
+                when mailType.APPROVED
+                    kw = 'approve'
+                    news = 'approved by your manager and is pending reimbursement!'
+                when mailType.REJECTED
+                    kw = 'rejected'
+                    news = 'rejected by your manager. Sorry!'
+                when mailType.REIMBURSED
+                    kw = 'reimbursed'
+                    news = 'reimbursed in the amount of $' + amount + ' and should now be available in your Dwolla balance!'
+                else return
 
-        # sum up all expenses in payment:
-        totalAmount = payment.expenses
-            .map((expense) -> parseFloat(expense.amount))
-            .reduce((n, r) -> return n + r)
+            subj = 'xpenz: Your expense has been ' + kw + '.'
 
-        # send payment
-        try
-            txid = dwolla.sendSync(pin, destinationId, totalAmount, {
-                notes: 'Expense reimbursement for ' + payment.expenseType + ' expenses',
-                assumeCosts: true
-            })
-        catch e 
-            throw new Meteor.Error 'payment-fail', 'Could not send Dwolla payment: ' + e.message
+            Email.send(
+                from: "xpenz@dwolla.com",
+                to: dest.emails[0]['address'],
+                subject: subj,
+                text: 'Hello ' + dest.profile.name + '!\n'+ 'An expense you submitted for ' + type
+                + ' has been' + news)
 
-        if !txid
-            throw new Meteor.Error 'payment-fail', 'Could not send Dwolla payment'
+            console.log('xpenz: Email sent to ' + userId + ' regarding a ' + type + ' expense.')
 
-        # record payment:
-        paymentId = Payments.insert
-            employeeId: employeeToBeReimbursed._id
-            expenseType: payment.expenseType
-            total: totalAmount
-            dwollaTransactionId: txid
-            createdDate: new Date()
+        #
+        # Payment methods:
+        #
 
-        # update expenses, add payment id and new status
-        expenseIds = payment.expenses.map((e) -> e._id)
-        Expenses.update
-            _id: 
-                $in: expenseIds
-        , 
-            $set:
-                paymentId: paymentId
-                status: 'Reimbursed'
-                reimbursedByUserId: sendingUser._id
-        ,
-            multi: true
-            
-        # send e-mail to user and notify them of their finished ER
-        # TODO: allow user to select which e-mail receives notifications
-        Email.send(
-            from: "xpenz@dwolla.com",
-            to: employeeToBeReimbursed.emails[0]['address'],
-            subject: 'xpenz: Your expense has been reimbursed!',
-            text: 'Hello ' + employeeToBeReimbursed.profile.name + '!\n'+ 'An expense you submitted for ' + payment.expenseType
-            + ' has been reimbursed in the amount of $' + totalAmount
-            + ' and should now be available in your Dwolla balance!')
+        processPayment = (payment, sendingUser, pin) ->
+            token = sendingUser.profile.auth.access_token
+            dwolla.setToken(token)
 
-        return paymentId
+            employeeToBeReimbursed = Meteor.users.findOne({_id: payment.employeeId})
+            destinationId = employeeToBeReimbursed.profile.dwollaId
 
-    #
+            # sum up all expenses in payment:
+            totalAmount = payment.expenses
+                .map((expense) -> parseFloat(expense.amount))
+                .reduce((n, r) -> return n + r)
+
+            # send payment
+            try
+                txid = dwolla.sendSync(pin, destinationId, totalAmount, {
+                    notes: 'Expense reimbursement for ' + payment.expenseType + ' expenses',
+                    assumeCosts: true
+                })
+            catch e 
+                throw new Meteor.Error 'payment-fail', 'Could not send Dwolla payment: ' + e.message
+
+            if !txid
+                throw new Meteor.Error 'payment-fail', 'Could not send Dwolla payment'
+
+            # record payment:
+            paymentId = Payments.insert
+                employeeId: employeeToBeReimbursed._id
+                expenseType: payment.expenseType
+                total: totalAmount
+                dwollaTransactionId: txid
+                createdDate: new Date()
+
+            # update expenses, add payment id and new status
+            expenseIds = payment.expenses.map((e) -> e._id)
+            Expenses.update
+                _id: 
+                    $in: expenseIds
+            , 
+                $set:
+                    paymentId: paymentId
+                    status: 'Reimbursed'
+                    reimbursedByUserId: sendingUser._id
+            ,
+                multi: true
+                
+            # send e-mail to user and notify them of their finished ER
+            # TODO: allow user to select which e-mail receives notifications
+            sendMail(payment.employeeId, payment.expenseType, 2, totalAmount)
+
+            return paymentId
+
     # publish records
-    #
 
     Meteor.publish "expensesCreatedByUser", () ->
         Expenses.find({employeeId: this.userId})
@@ -208,5 +242,4 @@ if Meteor.isServer
     Meteor.startup ->
         Roles.addUsersToRoles('efcukBiCnX3gx4G9F', 'superAccountant');
         Roles.addUsersToRoles('QtPNWFyzLXjYvcwWe', 'superAccountant');
-
         return

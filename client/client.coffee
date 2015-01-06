@@ -305,6 +305,7 @@ if Meteor.isClient
       , $set:
         status: 'PendingReimbursement'
         approvedByUserId: Meteor.user()._id
+      Meteor.call('sendMail', expense.employeeId, expense.type, 0)
 
     'click .rejectExpenseButton': (e) ->
       expense = Template.currentData()
@@ -314,10 +315,10 @@ if Meteor.isClient
       , $set:
         status: 'Rejected',
         rejectedByUserId: Meteor.user()._id
+      Meteor.call('sendMail', expense.employeeId, expense.type, 1)
 
     'click .reimburseExpenseButton': (e) ->
       expense = Template.currentData()
-
       Meteor.call('reimburseExpense', expense)
 
 
