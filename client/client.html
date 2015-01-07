@@ -64,6 +64,7 @@ Role: <select name="role">
   <option value="accountant">Accountant</option>
   <option value="superAccountant">Super Accountant</option>
 </select>
+<button type="submit" id="invite" class="btn btn-primary">Invite!</button>
 <h2>edit users</h2>
 <div class="editUsersTable table">
 	<div>
@@ -76,9 +77,9 @@ Role: <select name="role">
 		{{#autoForm collection="Meteor.users" doc=this id=generateEditUserFormId type="update" schema=userSchema validation="none"}}
 		<div>{{ profile.name }}</div>
 		<div>{{#each emails }} {{address}} {{/each}}</div>
-		<div>{{> afFieldInput name='profile.managerId' options=getManagerOptions }}</div>
+		<div><div id="normalizeControls">{{> afFieldInput name='profile.managerId' options=getManagerOptions }}</div></div>
 		<div>
-			{{> afArrayField name='roles'}}
+			<div id="normalizeControls">{{> afArrayField name='roles'}}</div>
 		</div>
 
 		<div>
@@ -216,7 +217,8 @@ Manager: <input id="managerId" type="managerId" />
         <span>upload: {{percent_uploaded}}%</span>
     {{/each}}
 	</div>
-	<div class="col-lg-6">
+	<div class="col-lg-4"></div>
+	<div class="col-lg-2">
 		<button type="submit" class="btn btn-success btn-large" id="createExpenseButton">Create</button>
 	</div>
 </div>

@@ -8,7 +8,7 @@ Expenses.attachSchema new SimpleSchema
   type:
     type: String
     optional: false
-    allowedValues: ['Ground Transportation', 'Office Supplies', 'Flights', 'Lodging', 'Food', 'Other']
+    allowedValues: ['Ground Transport', 'Office Supplies', 'Flights', 'Lodging', 'Food', 'Other']
     label: 'Type'
   vendor: 
     type: String

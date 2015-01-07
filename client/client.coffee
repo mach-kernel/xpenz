@@ -75,6 +75,10 @@ if Meteor.isClient
     'isUsersManager': () ->
       return true
 
+  Template.adminSettings.events
+    'click #invite': (e) ->
+      alert Template.currentData()
+
   # 
   # OAuth Return iframe
   # 

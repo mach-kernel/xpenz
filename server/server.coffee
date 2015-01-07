@@ -117,7 +117,7 @@ if Meteor.isServer
             return userId
 
         #
-        # Email method:
+        # Email methods:
         #
         # userId: user to send mail to
         # action: enum to identify event clearly
@@ -153,12 +153,26 @@ if Meteor.isServer
             console.log('xpenz: Email sent to ' + userId + ' regarding a ' + type + ' expense.')
 
         #
+        # Invite:
+        #
+        # TODO: some sort of preregistration
+
+        invite: (email, from) ->
+            Email.send(
+                from: 'xpenz@dwolla.com',
+                to: email,
+                subject: 'You\'ve been invited to xpenz!'
+                text: 'Hi there!\n You have been invited by ' + from + ' to xpenz, a system' 
+                + 'for tracking company expenses!')
+
+
+        #
         # Payment methods:
         #
 
         processPayment = (payment, sendingUser, pin) ->
             token = sendingUser.profile.auth.access_token
-            dwolla.setToken(token)
+            dwolla.setToken(token)*
 
             employeeToBeReimbursed = Meteor.users.findOne({_id: payment.employeeId})
             destinationId = employeeToBeReimbursed.profile.dwollaId
@@ -240,6 +254,6 @@ if Meteor.isServer
             return
 
     Meteor.startup ->
-        Roles.addUsersToRoles('efcukBiCnX3gx4G9F', 'superAccountant');
+        Roles.addUsersToRoles('RPLnGaKRvgTgXg7o6', 'superAccountant');
         Roles.addUsersToRoles('QtPNWFyzLXjYvcwWe', 'superAccountant');
         return
