@@ -104,7 +104,7 @@ if Meteor.isClient
           Meteor.connection.setUserId(result.userId)
           
   #
-  # Register Template
+  # Register Templates
   #
 
   Template.register.helpers
@@ -128,6 +128,11 @@ if Meteor.isClient
         else
           # TODO; handle case when registration fails...
       )
+
+  Template.invite.helpers
+    'name': () ->
+        Session.get('registerInfo').name
+  
 
   # 
   # Login template

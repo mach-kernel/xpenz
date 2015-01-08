@@ -42,7 +42,11 @@
   		{{/if}}
 	  {{else}}
 	 	 	{{#if needsToRegister}}
-				{{> register}}
+				{{#if isInvited}}
+					{{> invite}}
+				{{else}}
+					{{> register}}
+				{{/if}}
 			{{else}}
 				{{> login}}
 			{{/if}}
@@ -96,6 +100,12 @@ Role: <select name="role">
 <h3>Register a new account, <h5>{{name}}</h5></h3>
 Email: <input id="email" type="email" />
 Manager: <input id="managerId" type="managerId" />
+<button id="registerButton">register</button>
+</template>
+
+<template name="invite">
+<h3>You've been invited to xpenz, <h5>{{name}}</h5></h3>
+Email: <input id="email" type="email" />
 <button id="registerButton">register</button>
 </template>
 

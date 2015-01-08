@@ -7,7 +7,7 @@ if Meteor.isServer
     if (process.env.ROOT_URL)
         DWOLLA_OAUTH_REDIRECT_URL = process.env.ROOT_URL + '/dwollaOAuthReturn'
     else
-        DWOLLA_OAUTH_REDIRECT_URL = 'http://localhsot:3000/dwollaOAuthReturn'
+        DWOLLA_OAUTH_REDIRECT_URL = 'http://localhost:3000/dwollaOAuthReturn'
 
     # Set up Dwolla API bindings
     Dwolla = Meteor.npmRequire('dwolla-node')
@@ -115,6 +115,10 @@ if Meteor.isServer
             this.setUserId(userId)
 
             return userId
+        
+        registerInvite: (email, dwollaId, name, auth) ->
+            
+            
 
         #
         # Email methods:
@@ -152,18 +156,16 @@ if Meteor.isServer
 
             console.log('xpenz: Email sent to ' + userId + ' regarding a ' + type + ' expense.')
 
-        #
-        # Invite:
-        #
-        # TODO: some sort of preregistration
-
-        invite: (email, from) ->
+        inviteMail: (email, managerId) ->
+            mgr = Meteor.users.findOne({_id: managerId})
             Email.send(
                 from: 'xpenz@dwolla.com',
                 to: email,
                 subject: 'You\'ve been invited to xpenz!'
-                text: 'Hi there!\n You have been invited by ' + from + ' to xpenz, a system' 
-                + 'for tracking company expenses!')
+                text: 'Hi there!\n You have been invited by ' + mgr.profile.name + ' to xpenz, a system' 
+                + 'for tracking company expenses!\n\nClick this link in order to complete registration'
+                + 'and have your Dwolla account information handy: ' + process.env.ROOT_URL + '?invite=' + mgr._id)
+        
 
 
         #
