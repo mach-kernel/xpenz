@@ -100,7 +100,12 @@ if Meteor.isClient
         Session.set('registerInfo', result)
         if result.resultCode == 'create-new-user'
           # if user doesn't exist, show register template
-          Session.set('register', true)
+          # if there is a 'invite' code, send them to the invite template instead
+          if getQueryStringParam('code').length
+              Session.set('register', false)
+              Session.set('invite', true)
+          else
+              Session.set('register', true)
         else if result.resultCode == 'user-logged-in'
           # if user exists, log the user in
           Session.set('register', false)
