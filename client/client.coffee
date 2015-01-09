@@ -103,6 +103,7 @@ if Meteor.isClient
           # if user doesn't exist, show register template
           # if there is a 'invite' code, send them to the invite template instead
           if getQueryStringParam('invite').length
+              console.log('call to render invite sent!')
               Session.set('register', false)
               Session.set('invite', true)
           else
