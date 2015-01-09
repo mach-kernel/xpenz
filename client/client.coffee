@@ -135,6 +135,24 @@ if Meteor.isClient
   Template.invite.helpers
     'name': () ->
         Session.get('registerInfo').name
+        
+  Template.invite.events =
+    'click button': (e) ->
+      email = $('#email').val()
+      managerId = getQueryStringParam('invite')
+      registerInfo = Session.get('registerInfo')
+      name = registerInfo.name
+      auth = registerInfo.auth
+      dwollaId = registerInfo.dwollaId
+      
+      # create account, then bring to dashboard:
+      Meteor.call('registerUser', email, dwollaId, name, managerId, auth, (error, newUserId) ->
+        if newUserId
+          Meteor.connection.setUserId(newUserId)
+          Session.set('register', false)
+        else
+          # TODO; handle case when registration fails...
+      )
   
 
   # 

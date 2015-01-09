@@ -114,11 +114,7 @@ if Meteor.isServer
 
             this.setUserId(userId)
 
-            return userId
-        
-        registerInvite: (email, dwollaId, name, auth) ->
-            
-            
+            return userId            
 
         #
         # Email methods:
