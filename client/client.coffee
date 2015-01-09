@@ -59,6 +59,7 @@ if Meteor.isClient
   Template.mainScreen.helpers
     'needsToRegister': () -> Session.get('register')
     'showAdminSettings': () -> Session.get('showAdminSettings')
+    'isInvited': () -> Session.get('invite')
 
   #
   # adminSettings template
