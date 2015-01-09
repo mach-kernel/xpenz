@@ -80,7 +80,7 @@ if Meteor.isClient
       dest = $('#email').val()
       Meteor.call('inviteMail', dest, Meteor.user()._id)
       alert 'Invite sent to ' + dest + '!'
-      $('#email').text('')
+      $('#email').val('')
 
   # 
   # OAuth Return iframe
