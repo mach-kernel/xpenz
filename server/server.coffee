@@ -128,7 +128,6 @@ if Meteor.isServer
         #
 
         sendMail: (userId, type, action, amount=false) ->
-            console.log('sm called')
             dest = Meteor.users.findOne({_id: userId})
             kw = ''
             news = ''
@@ -154,20 +153,16 @@ if Meteor.isServer
                 text: 'Hello ' + dest.profile.name + '!\n'+ 'An expense you submitted for ' + type \
                 + ' has been' + news)
 
-            console.log('xpenz: Email sent to ' + userId + ' regarding a ' + type + ' expense.')
-
         inviteMail: (email, managerId) ->
             mgr = Meteor.users.findOne({_id: managerId})
             Email.send(
                 from: 'xpenz@dwolla.com',
                 to: email,
                 subject: 'You\'ve been invited to xpenz!'
-                text: 'Hi there!\n You have been invited by ' + mgr.profile.name + ' to xpenz, a system' \
-                + 'for tracking company expenses!\n\nClick this link in order to complete registration' \
+                text: 'Hi there!\nYou have been invited by ' + mgr.profile.name + ' to xpenz, a system ' \
+                + 'for tracking company expenses!\n\nClick this link in order to complete registration ' \
                 + 'and have your Dwolla account information handy: ' + process.env.ROOT_URL + '?invite=' + mgr._id)
         
-
-
         #
         # Payment methods:
         #

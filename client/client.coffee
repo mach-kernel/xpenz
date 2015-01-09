@@ -79,7 +79,8 @@ if Meteor.isClient
     'click #invite': (e) ->
       dest = $('#email').val()
       Meteor.call('inviteMail', dest, Meteor.user()._id)
-      alert 'Invite sent to ' + dest
+      alert 'Invite sent to ' + dest + '!'
+      $('#email').val() = ''
 
   # 
   # OAuth Return iframe
