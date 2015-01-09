@@ -151,7 +151,7 @@ if Meteor.isServer
                 from: "xpenz@dwolla.com",
                 to: dest.emails[0]['address'],
                 subject: subj,
-                text: 'Hello ' + dest.profile.name + '!\n'+ 'An expense you submitted for ' + type
+                text: 'Hello ' + dest.profile.name + '!\n'+ 'An expense you submitted for ' + type \
                 + ' has been' + news)
 
             console.log('xpenz: Email sent to ' + userId + ' regarding a ' + type + ' expense.')
@@ -162,8 +162,8 @@ if Meteor.isServer
                 from: 'xpenz@dwolla.com',
                 to: email,
                 subject: 'You\'ve been invited to xpenz!'
-                text: 'Hi there!\n You have been invited by ' + mgr.profile.name + ' to xpenz, a system' 
-                + 'for tracking company expenses!\n\nClick this link in order to complete registration'
+                text: 'Hi there!\n You have been invited by ' + mgr.profile.name + ' to xpenz, a system' \
+                + 'for tracking company expenses!\n\nClick this link in order to complete registration' \
                 + 'and have your Dwolla account information handy: ' + process.env.ROOT_URL + '?invite=' + mgr._id)
         
 
