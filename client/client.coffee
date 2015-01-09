@@ -77,7 +77,9 @@ if Meteor.isClient
 
   Template.adminSettings.events
     'click #invite': (e) ->
-      alert Template.currentData()
+      dest = $('#email').val()
+      Meteor.call('inviteMail', dest, Meteor.user()._id)
+      alert 'Invite sent to ' + dest
 
   # 
   # OAuth Return iframe
@@ -85,7 +87,7 @@ if Meteor.isClient
 
   Template.OAuthReturn.rendered = () ->
     window.parent.postMessage('closeLightBox###' + getQueryStringParam('code'), '*')
-
+    
   # handle message from iframe: close it and finish OAuth:
   window.addEventListener 'message', (e) -> 
     if (e.data.indexOf('closeLightBox') != -1)
