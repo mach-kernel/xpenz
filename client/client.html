@@ -42,13 +42,13 @@
   		{{/if}}
 	  {{else}}
 	 	 	{{#if needsToRegister}}
+				{{> register}}
+			{{else}}
 				{{#if isInvited}}
 					{{> invite}}
 				{{else}}
-					{{> register}}
+					{{> login}}
 				{{/if}}
-			{{else}}
-				{{> login}}
 			{{/if}}
 	  {{/if}}
 </div>
