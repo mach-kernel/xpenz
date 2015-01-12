@@ -8,17 +8,44 @@ Make sure you have meteor installed:
 
 `curl https://install.meteor.com | /bin/sh`
 
-You'll need an S3 bucket and credentials.  Set the following environment variables:
+### Required Settings
 
+You will need:
+
+- S3 bucket
+- Dwolla API key/secret
+
+##### run.sh
 ```
-XPENZ_S3_KEY={ s3 key }
-XPENZ_S3_SECRET= { s3 secret }
-XPENZ_S3_BUCKET= { s3 bucket name }
+#/bin/bash
+
+# AWS Config
+export XPENZ_S3_KEY="this thing"
+export XPENZ_S3_SECRET="that thing"
+export XPENZ_S3_BUCKET="the other thing"
+
+# Dwolla Config
+export DWOLLA_KEY="wat"
+export DWOLLA_SECRET="sshhhh"
+
+# Custom Domain
+export ROOT_URL="http://localhost:3000"
+
+# Mail Functionality
+export MAIL_URL="smtp://your_username:your_password@smtp.yourserver.net:587"
+
+meteor
 ```
+
+### E-Mail Notifications
+
+In order for e-mail notifications to work, you must set a valid SMTP host to send mail through. If mail flow does not work even with a valid SMTP host, it is probably because you are not running xpenz from a box with a static IP or valid reverse-dns lookup. You can verify this via [MxToolbox's reverse lookup utility](http://mxtoolbox.com/ReverseLookup.aspx).
+
+### Running
 
 Clone the app and run it with:
 
-`meteor`
+`chmod +x runapp.sh && ./runapp.sh`
 
 ## TODO
 
@@ -35,8 +62,6 @@ Stretch:
 - allow undo when approving expense
 - allow undo when rejecting expense
 - implement accountant statistics view
-- implement email alert to manager when expense filed
-- implement notifications when your expense got reimbursed or rejected
 - implement submit expense by Twilio MMS
 - create Organization collection with access token of dwolla account to pay from.  Employees have an Organization ID, and accountants and managers can only interact with employees of their organization
 - auth using Google instead of Dwolla.  Only accountants need Dwolla -- let them connect their account.
