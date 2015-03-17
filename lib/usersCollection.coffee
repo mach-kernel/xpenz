@@ -27,6 +27,9 @@
   'profile.auth':
   	type: Object
   	optional: true
+  'profile.fundingSource':
+    type: String
+    optional: true
   services:
   	type: Object
   	optional: true
@@ -38,6 +41,7 @@
 	  optional: true
 	  blackbox: true
 	  allowedValues: ['manager', 'accountant', 'employee', 'superAccountant']
+
 
 Meteor.users.allow
 	update: (userId, doc, fields, modifier) ->

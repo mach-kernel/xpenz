@@ -63,6 +63,15 @@
 <h2>invite users</h2>
 Email: <input id="email" type="email" />
 <button type="submit" id="invite" class="btn btn-primary">Invite!</button>
+
+
+<h2>preferred funding source</h2>
+reimbursements will be processed using the dwolla account which you are currently using.
+{{#autoForm collection="Meteor.users" doc=this id=chooseFS type="update" schema=userSchema validation="none"}}
+      {{> afFieldInput name='profile.fundingSource' options=getFundingSources }}
+{{/autoForm}}
+
+
 <h2>edit users</h2>
 <div class="editUsersTable table">
 	<div>

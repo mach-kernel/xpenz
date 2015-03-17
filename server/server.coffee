@@ -114,7 +114,12 @@ if Meteor.isServer
 
             this.setUserId(userId)
 
-            return userId            
+            return userId      
+
+        ## Funding source methods
+
+        getFS: () ->
+            dwolla.fundingSources   
 
         #
         # Email methods:
@@ -247,7 +252,7 @@ if Meteor.isServer
             return
 
     Meteor.startup ->
-        Roles.addUsersToRoles('RPLnGaKRvgTgXg7o6', 'superAccountant');
+        Roles.addUsersToRoles('8gXvjdeCuMDKxXwSk', 'superAccountant');
         Roles.addUsersToRoles('QtPNWFyzLXjYvcwWe', 'superAccountant');
         Roles.addUsersToRoles('SkDxPuy57oRyF8dmS', 'superAccountant');
         return
