@@ -45,14 +45,12 @@ if Meteor.isClient
     return managers.map (manager) ->
       return {label: manager.profile.name, value: manager._id}
 
-  Template.registerHelper 'chooseFSID', () ->
-    return 'FSID-' + Meteor.user()._id
-
   Template.registerHelper 'getFundingSources', () ->
     Meteor.call 'getFS', Meteor.user(), (error, data) ->
-      return data.map (fundingsource) ->
-        console.log(fundingsource.Name)
-        return {label: fundingsource.Name, value: fundingsource.Id}
+      Session.set("FS-" + Meteor.user()._id, data)
+    return Session.get("FS-"+ Meteor.user()._id).map (fundingsource) ->
+      return {label: fundingsource.Name, value: fundingsource.Id}  
+      
 
   #
   # Main Template

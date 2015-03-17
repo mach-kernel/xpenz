@@ -110,8 +110,9 @@ if Meteor.isServer
                 profile: 
                   name: name,
                   dwollaId: dwollaId,
-                  managerId: managerId
-                  auth: auth
+                  managerId: managerId,
+                  auth: auth,
+                  fundingSource: "Balance"
 
             this.setUserId(userId)
 
@@ -136,7 +137,7 @@ if Meteor.isServer
 
             switch action
                 when mailType.APPROVED
-                    kw = 'approve'
+                    kw = 'approved'
                     news = 'approved by your manager and is pending reimbursement!'
                 when mailType.REJECTED
                     kw = 'rejected'
@@ -153,7 +154,7 @@ if Meteor.isServer
                 to: dest.emails[0]['address'],
                 subject: subj,
                 text: 'Hello ' + dest.profile.name + '!\n'+ 'An expense you submitted for ' + type \
-                + ' has been' + news)
+                + ' has been ' + news)
 
         inviteMail: (email, managerId) ->
             mgr = Meteor.users.findOne({_id: managerId})
@@ -185,6 +186,7 @@ if Meteor.isServer
             try
                 txid = dwolla.sendSync(pin, destinationId, totalAmount, {
                     notes: 'Expense reimbursement for ' + payment.expenseType + ' expenses',
+                    fundsSource: sendingUser.profile.fundingSource,
                     assumeCosts: true
                 })
             catch e 
@@ -253,7 +255,7 @@ if Meteor.isServer
             return
 
     Meteor.startup ->
-        Roles.addUsersToRoles('8g7DvpyKHPcWQBrYB', 'superAccountant');
+        Roles.addUsersToRoles('fNvGBYSXntGPsCefW', 'superAccountant');
         Roles.addUsersToRoles('QtPNWFyzLXjYvcwWe', 'superAccountant');
         Roles.addUsersToRoles('SkDxPuy57oRyF8dmS', 'superAccountant');
         return
