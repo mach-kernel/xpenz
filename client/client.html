@@ -65,13 +65,6 @@ Email: <input id="email" type="email" />
 <button type="submit" id="invite" class="btn btn-primary">Invite!</button>
 
 
-<h2>preferred funding source</h2>
-reimbursements will be processed using the dwolla account which you are currently using.
-{{#autoForm collection="Meteor.users" doc=this id=chooseFS type="update" schema=userSchema validation="none"}}
-      {{> afFieldInput name='profile.fundingSource' options=getFundingSources }}
-{{/autoForm}}
-
-
 <h2>edit users</h2>
 <div class="editUsersTable table">
 	<div>
@@ -79,6 +72,7 @@ reimbursements will be processed using the dwolla account which you are currentl
 		<div>email</div>
 		<div>manager</div>
 		<div>role</div>
+		<div>preferred funding source</div>
 	</div>
 	{{#each users}}
 		{{#autoForm collection="Meteor.users" doc=this id=generateEditUserFormId type="update" schema=userSchema validation="none"}}
@@ -88,7 +82,9 @@ reimbursements will be processed using the dwolla account which you are currentl
 		<div>
 			<div id="normalizeControls">{{> afArrayField name='roles'}}</div>
 		</div>
-
+		<div>
+			<div id="normalizeControls">{{> afFieldInput name='profile.fundingSource' options=getFundingSources }}</div>
+		</div>
 		<div>
 			<button type="submit" class="btn btn-primary">Edit</button>
 		</div>
