@@ -18,6 +18,7 @@ if Meteor.isServer
     dwolla.finishAuthSync = Meteor.wrapAsync dwolla.finishAuth
     dwolla.fullAccountInfoSync = Meteor.wrapAsync dwolla.fullAccountInfo
     dwolla.sendSync = Meteor.wrapAsync dwolla.send
+    dwolla.fsSync = Meteor.wrapAsync dwolla.fundingSources
     
     
     # Define AWS config    
@@ -117,9 +118,9 @@ if Meteor.isServer
             return userId      
 
         ## Funding source methods
-
-        getFS: () ->
-            dwolla.fundingSources   
+        getFS: (fundingUser) ->
+            dwolla.setToken(fundingUser.profile.auth.access_token)
+            return dwolla.fsSync()
 
         #
         # Email methods:
