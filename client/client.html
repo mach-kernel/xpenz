@@ -165,8 +165,8 @@ Email: <input id="email" type="email" />
 						<td>{{description}}</td>
 						<td>${{formatAmount amount}}</td>
 						<td>{{status}}</td>
-						<td>{{#if receiptFileURL}}
-							<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{description}}">Receipt</a>
+						<td>{{#if secureURL}}
+							<a href="{{secureURL}}" class="btn btn-default btn-sm" data-lightbox="image-1" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
 							{{else}}
 							{{/if}}</td>
 						<td>
@@ -318,8 +318,8 @@ Email: <input id="email" type="email" />
 	<td>${{formatAmount amount}}</td>
 	<td>{{status}}</td>
 	<td>
-		{{#if receiptFileURL}}
-			<a href="{{receiptFileURL}}" data-lightbox="image-1" data-title="{{description}}">Receipt</a>
+		{{#if secureURL}}
+			<a href="{{secureURL}}" class="btn btn-default btn-sm" data-lightbox="image-1" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
 		{{else}} 
 			no receipt
 		{{/if}}

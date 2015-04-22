@@ -36,6 +36,12 @@ Expenses.attachSchema new SimpleSchema
   receiptFileURL:
     type: String
     optional: true
+  secureURL:
+    type: String
+    optional: true
+  secureURLexpiry:
+    type: Date
+    optional: true
 
   # Users involved with this expense:
 

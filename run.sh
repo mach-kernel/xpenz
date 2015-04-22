@@ -4,6 +4,7 @@
 export XPENZ_S3_KEY="this thing"
 export XPENZ_S3_SECRET="that thing"
 export XPENZ_S3_BUCKET="the other thing"
+export XPENZ_S3_LINKLIFE=15 #minutes
 
 # Dwolla Config
 export DWOLLA_KEY="wat"

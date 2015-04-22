@@ -211,8 +211,16 @@ if Meteor.isClient
 
   Template.showUserExpenses.helpers
     'getExpenses': () -> 
-      Expenses.find
+      expenses = Expenses.find
         employeeId: Meteor.user()._id
+
+      expenses.forEach (expense) ->
+        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+          Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
+            Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
+            Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
+      return expenses
+
     'expensesCollection': () -> Expenses
     'ableToDelete': () ->
       return (_.contains(['PendingApproval', 'PendingReimbursement'], Template.currentData().status) )
@@ -258,11 +266,13 @@ if Meteor.isClient
 
           files = $("input.file_bag")[0].files
 
+
           if files.length > 0
             S3.upload files, 'receipts', (err, result) ->
               if (err) 
                 return hook.result(false)
-              doc.receiptFileURL = result.secure_url
+
+              doc.receiptFileURL = result.relative_url
               hook.result(doc)
           else
             return doc
@@ -274,6 +284,7 @@ if Meteor.isClient
           $('input[name="trip"]').val(expense.trip)
           $('input[name="vendor"]').val(expense.vendor)
           $('input[name="date"]').val expense.date.toISOString().split('T')[0]
+          this.autorun
 
       onError: (operation, error, template) ->
         Session.set('insertExpenseFormError', error.message)
@@ -292,9 +303,16 @@ if Meteor.isClient
 
   Template.showExpensesToApprove.helpers
     'getExpenses': () ->
-      return Expenses.find
+      expenses = Expenses.find
         status: 
           $in: ['PendingApproval']
+
+      expenses.forEach (expense) ->
+        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+          Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
+            Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
+            Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
+      return expenses
 
     'expensesCollection': () -> Expenses
 
@@ -304,9 +322,16 @@ if Meteor.isClient
 
   Template.showExpensesToReimburse.helpers
     'getExpenses': () ->
-      return Expenses.find
+      expenses = Expenses.find
         status: 
           $in: ['PendingReimbursement']
+
+      expenses.forEach (expense) ->
+        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+          Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
+            Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
+            Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
+      return expenses
 
     'expensesCollection': () -> Expenses
     'reimburseError': () -> Session.get('reimburseError')

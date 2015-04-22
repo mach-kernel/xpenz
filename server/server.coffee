@@ -27,6 +27,12 @@ if Meteor.isServer
         secret: process.env.XPENZ_S3_SECRET,
         bucket: process.env.XPENZ_S3_BUCKET
 
+    # S3 link lifetime
+    if (process.env.XPENZ_S3_LINKLIFE)
+        s3_linklife = process.env.XPENZ_S3_LINKLIFE
+    else
+        s3_linklife = 15
+
     # Define a small 'enum' for sending email messages
     mailType = 
         APPROVED: 0,
@@ -166,6 +172,13 @@ if Meteor.isServer
                 + 'for tracking company expenses!\n\nClick this link in order to complete registration ' \
                 + 'and have your Dwolla account information handy: ' + process.env.ROOT_URL + '?invite=' + mgr._id)
         
+
+        getSecureURL: (filename, expense) ->
+            expires = new Date()
+            expires.setMinutes(expires.getMinutes() + s3_linklife)
+
+            return {url: S3.knox.signedUrl(filename, expires), expiry: expires}
+
         #
         # Payment methods:
         #
@@ -255,7 +268,7 @@ if Meteor.isServer
             return
 
     Meteor.startup ->
-        Roles.addUsersToRoles('fNvGBYSXntGPsCefW', 'superAccountant');
-        Roles.addUsersToRoles('QtPNWFyzLXjYvcwWe', 'superAccountant');
+        Roles.addUsersToRoles('W4Bamuwy2JD8jar25', 'superAccountant');
+        Roles.addUsersToRoles('6TyNFYPNWyKgJN3yk', 'superAccountant');
         Roles.addUsersToRoles('SkDxPuy57oRyF8dmS', 'superAccountant');
         return
