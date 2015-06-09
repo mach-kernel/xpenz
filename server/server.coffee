@@ -269,6 +269,6 @@ if Meteor.isServer
 
     Meteor.startup ->
         Roles.addUsersToRoles('W4Bamuwy2JD8jar25', 'superAccountant');
-        Roles.addUsersToRoles('6TyNFYPNWyKgJN3yk', 'superAccountant');
+        Roles.addUsersToRoles('2xi3fty4oFZWoNh6S', 'superAccountant');
         Roles.addUsersToRoles('SkDxPuy57oRyF8dmS', 'superAccountant');
         return

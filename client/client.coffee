@@ -94,30 +94,23 @@ if Meteor.isClient
   # 
 
   Template.OAuthReturn.rendered = () ->
-    window.parent.postMessage('closeLightBox###' + getQueryStringParam('code'), '*')
-    
-  # handle message from iframe: close it and finish OAuth:
-  window.addEventListener 'message', (e) -> 
-    if (e.data.indexOf('closeLightBox') != -1)
-      $.featherlight.current().close();
-
-      authorizationCode = e.data.split('###')[1]
-
-      Meteor.call 'OAuthFinish', authorizationCode, (error, result) ->
-        Session.set('registerInfo', result)
-        if result.resultCode == 'create-new-user'
-          # if user doesn't exist, show register template
-          # if there is a 'invite' code, send them to the invite template instead
-          if getQueryStringParam('invite').length
-              console.log('call to render invite sent!!')
-              Session.set('register', false)
-              Session.set('invite', true)
-          else
-              Session.set('register', true)
-        else if result.resultCode == 'user-logged-in'
-          # if user exists, log the user in
+    authorizationCode = getQueryStringParam('code')
+    console.log(authorizationCode)
+    Meteor.call 'OAuthFinish', authorizationCode, (error, result) ->
+      Session.set('registerInfo', result)
+      if result.resultCode == 'create-new-user'
+        # if user doesn't exist, show register template
+        # if there is a 'invite' code, send them to the invite template instead
+        if getQueryStringParam('invite').length
           Session.set('register', false)
-          Meteor.connection.setUserId(result.userId)
+          Session.set('invite', true)
+        else
+          Session.set('register', true)
+      else if result.resultCode == 'user-logged-in'
+        # if user exists, log the user in
+        Session.set('register', false)
+        Meteor.connection.setUserId(result.userId)
+        UI.insert(UI.render(Template.mainScreen), document.body)
           
   #
   # Register Templates
@@ -178,8 +171,8 @@ if Meteor.isClient
 
   Template.login.rendered = () ->
     Meteor.call('OAuthGetURL', (error, result) ->
-      $('#loginClick').featherlight
-        html: '<iframe id="loginIFrame" src="' + result + '" />'
+      $('#loginClick').on "click", ->
+        window.location.replace(result)
     )
 
   Template.login.events = 'click button, keydown': (e) ->
