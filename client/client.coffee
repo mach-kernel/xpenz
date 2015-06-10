@@ -95,7 +95,6 @@ if Meteor.isClient
 
   Template.OAuthReturn.rendered = () ->
     authorizationCode = getQueryStringParam('code')
-    console.log(authorizationCode)
     Meteor.call 'OAuthFinish', authorizationCode, (error, result) ->
       Session.set('registerInfo', result)
       if result.resultCode == 'create-new-user'
@@ -111,7 +110,8 @@ if Meteor.isClient
         Session.set('register', false)
         Meteor.connection.setUserId(result.userId)
         UI.insert(UI.render(Template.mainScreen), document.body)
-          
+        history.pushState('/', 'xpenz', '/')
+                  
   #
   # Register Templates
   #
