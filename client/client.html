@@ -351,7 +351,7 @@ Email: <input id="email" type="email" />
 
 <template name="userHistory">
 
-<h2>view{{#with getEmployee}} {{profile.name}}{{/with}}'s expense history</h2>
+<h2>view{{#with getEmployee}} {{profile.name}}{{/with}}'s rejected expenses</h2>
 
 <table class="table">
 	<thead>
@@ -366,7 +366,28 @@ Email: <input id="email" type="email" />
 		</tr>
 	</thead>
 	<tbody>
-		{{#each getExpensesById}}
+		{{#each getRejectedExpensesById}}
+			{{> displayUHExpenseRow }}
+		{{/each}}
+	</tbody>
+</table>
+
+<h2>view{{#with getEmployee}} {{profile.name}}{{/with}}'s reimbursed expenses</h2>
+
+<table class="table">
+	<thead>
+		<tr>	
+			<th>Date</th>
+			<th>Type</th>
+			<th>Vendor</th>
+			<th>Trip</th>
+			<th>Description</th>
+			<th>Amount</th>
+			<th>Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each getReimbursedExpensesById}}
 			{{> displayUHExpenseRow }}
 		{{/each}}
 	</tbody>

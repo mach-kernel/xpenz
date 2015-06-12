@@ -105,23 +105,31 @@ if Meteor.isClient
 
   # User history template
   Template.userHistory.helpers
-    'getExpensesById': () -> 
+    'getRejectedExpensesById': () -> 
       rej = Expenses.find
         employeeId: Session.get('userHistoryId'),
         status: 'Rejected'
 
-      reimb = Expenses.find
-        employeeId: Session.get('userHistoryId'),
-        status: 'Reimbursed'
-
-      expenses = rej.concat(reimb)
-
-      expenses.forEach (expense) ->
+      rej.forEach (expense) ->
         if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
           Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
             Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
             Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
-      return expenses
+
+      return rej
+
+    'getReimbursedExpensesById': () ->
+      reimb = Expenses.find
+        employeeId: Session.get('userHistoryId'),
+        status: 'Reimbursed'
+
+      reimb.forEach (expense) ->
+        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+          Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
+            Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
+            Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
+
+      return reimb
 
     'getEmployee': () ->
       k = Meteor.users.findOne
