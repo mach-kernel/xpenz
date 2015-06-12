@@ -420,6 +420,8 @@ if Meteor.isClient
       return Template.currentData()
     'ableToApprove': () ->
       return (Template.currentData().status == 'PendingApproval') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant', 'manager']
+    'ableToUnReject': () ->
+      return (Template.currentData().status == 'Rejected') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant', 'manager']
     'getEmployee': () ->
       k = Meteor.users.findOne
         _id: Template.currentData().employeeId
