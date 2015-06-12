@@ -21,7 +21,12 @@
 	  {{#if currentUser}}
 	  	<h1 class="text-center" id="headerTitle">xpenz</h1>
 	  	{{#if showAdminSettings }}
-  			{{> adminSettings}}
+  			{{#if showUserHistory }}
+  				{{> userHistory}}
+  			{{else}}
+  				{{> adminSettings}}
+  			{{/if}}
+
   		{{else}}
   			{{> welcome}}
 
@@ -345,9 +350,54 @@ Email: <input id="email" type="email" />
 </template>
 
 <template name="userHistory">
-<h2>view {{profile.name}}'s expense history</h2>
 
-<h2>lorem ipsum dolor sit amet</h2>
+<h2>view{{#with getEmployee}} {{profile.name}}{{/with}}'s expense history</h2>
 
-<button id="userHistoryHideButton">Back</button>
+<table class="table">
+	<thead>
+		<tr>	
+			<th>Date</th>
+			<th>Type</th>
+			<th>Vendor</th>
+			<th>Trip</th>
+			<th>Description</th>
+			<th>Amount</th>
+			<th>Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each getExpensesById}}
+			{{> displayUHExpenseRow }}
+		{{/each}}
+	</tbody>
+</table>
+
+<button id="hideUserHist">Back</button>
+</template>
+
+<template name="displayUHExpenseRow">
+{{#with currentExpense}}
+<tr>
+	<td>{{formatDate date}}</td>
+	<td>{{type}}</td>
+	<td>{{vendor}}</td>
+	<td>{{trip}}</td>
+	<td>{{description}}</td>
+	<td>${{formatAmount amount}}</td>
+	<td>{{status}}</td>
+	<td>
+		{{#if secureURL}}
+			<a href="{{secureURL}}" class="btn btn-default btn-sm" data-lightbox="image-1" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
+		{{else}} 
+			no receipt
+		{{/if}}
+	</td>
+
+	{{#if ableToApprove}}
+		<td>
+			<button type="submit" class="btn btn-primary btn-large unRejectExpenseButton">Undo Reject</button>
+		</td>
+	{{/if}}
+</tr>
+{{/with}}
 </template>

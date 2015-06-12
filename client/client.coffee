@@ -61,14 +61,16 @@ if Meteor.isClient
       Session.set('showAdminSettings', true)
     'click #adminSettingsHideButton': () ->
       Session.set('showAdminSettings', false)
-    'click #viewUserHist': (event) ->
-      console.log(event)
-      console.log(event.target.form.id)
+    'click #hideUserHist': () ->
+      Session.set('showUserHistory', false)
+      Session.set('userHistoryId', false)
 
   Template.mainScreen.helpers
     'needsToRegister': () -> Session.get('register')
     'showAdminSettings': () -> Session.get('showAdminSettings')
     'isInvited': () -> Session.get('invite')
+    'showUserHistory': () ->
+      Session.get('showUserHistory')
 
   #
   # adminSettings template
@@ -84,6 +86,8 @@ if Meteor.isClient
       return Roles.getRolesForUser user
     'isUsersManager': () ->
       return true
+    'showUserHistory': () ->
+      Session.get('showUserHistory')
 
   Template.adminSettings.events
     'click #invite': (e) ->
@@ -91,6 +95,39 @@ if Meteor.isClient
       Meteor.call('inviteMail', dest, Meteor.user()._id)
       alert 'Invite sent to ' + dest + '!'
       $('#email').val('')
+
+    'click #viewUserHist': (event) ->
+      # Set session to history view
+      Session.set('showUserHistory', true)
+      Session.set('userHistoryId', event.target.form.id.split('-', 2)[1])
+      console.log("toggle on")
+      console.log(event.target.form.id.split('-', 2)[1])
+
+  # User history template
+  Template.userHistory.helpers
+    'getExpensesById': () -> 
+      rej = Expenses.find
+        employeeId: Session.get('userHistoryId'),
+        status: 'Rejected'
+
+      reimb = Expenses.find
+        employeeId: Session.get('userHistoryId'),
+        status: 'Reimbursed'
+
+      expenses = rej.concat(reimb)
+
+      expenses.forEach (expense) ->
+        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+          Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
+            Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
+            Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
+      return expenses
+
+    'getEmployee': () ->
+      k = Meteor.users.findOne
+        _id: Session.get('userHistoryId')
+      return k
+
 
   # 
   # OAuth Return iframe
@@ -355,6 +392,26 @@ if Meteor.isClient
       return (Template.currentData().status == 'PendingApproval') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant', 'manager']
     'ableToReimburse': () ->
       return (Template.currentData().status == 'PendingReimbursement') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant']
+    'getEmployee': () ->
+      k = Meteor.users.findOne
+        _id: Template.currentData().employeeId
+      return k
+
+  Template.displayUHExpenseRow.events = 
+    'click .unRejectExpenseButton': (e) ->
+      expense = Template.currentData()
+      # update record with new status
+      Expenses.update
+        _id: expense._id
+      , $set:
+        status: 'PendingApproval',
+        rejectedByUserId: Meteor.user()._id
+
+  Template.displayUHExpenseRow.helpers
+    'currentExpense': () ->
+      return Template.currentData()
+    'ableToApprove': () ->
+      return (Template.currentData().status == 'PendingApproval') && Roles.userIsInRole Meteor.user()._id, ['accountant', 'superAccountant', 'manager']
     'getEmployee': () ->
       k = Meteor.users.findOne
         _id: Template.currentData().employeeId
