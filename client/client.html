@@ -76,7 +76,10 @@ Email: <input id="email" type="email" />
 	</div>
 	{{#each users}}
 		{{#autoForm collection="Meteor.users" doc=this id=generateEditUserFormId type="update" schema=userSchema validation="none"}}
-		<div>{{ profile.name }}</div>
+		<div>{{ profile.name }} 
+		<br />
+		<br />
+		<button class="btn btn-xs btn-info" id="viewUserHist">Expense History</button></div>
 		<div>{{#each emails }} {{address}} {{/each}}</div>
 		<div><div id="normalizeControls">{{> afFieldInput name='profile.managerId' options=getManagerOptions }}</div></div>
 		<div>
@@ -339,4 +342,12 @@ Email: <input id="email" type="email" />
 	
 </tr>
 {{/with}}
+</template>
+
+<template name="userHistory">
+<h2>view {{profile.name}}'s expense history</h2>
+
+<h2>lorem ipsum dolor sit amet</h2>
+
+<button id="userHistoryHideButton">Back</button>
 </template>

@@ -61,6 +61,9 @@ if Meteor.isClient
       Session.set('showAdminSettings', true)
     'click #adminSettingsHideButton': () ->
       Session.set('showAdminSettings', false)
+    'click #viewUserHist': (event) ->
+      console.log(event)
+      console.log(event.target.form.id)
 
   Template.mainScreen.helpers
     'needsToRegister': () -> Session.get('register')
