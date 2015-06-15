@@ -62,6 +62,8 @@ if Meteor.isServer
                     payments.push {
                         employeeId: employeeId,
                         expenseType: type,
+                        expenseDate: date,
+                        expenseTrip: trip,
                         expenses: expensesByType[type]
                     }
 
@@ -173,11 +175,11 @@ if Meteor.isServer
                 + 'and have your Dwolla account information handy: ' + process.env.ROOT_URL + '?invite=' + mgr._id)
         
 
-        getSecureURL: (filename, expense) ->
+        getSecureURL: (filename) ->
             expires = new Date()
             expires.setMinutes(expires.getMinutes() + s3_linklife)
 
-            return {url: S3.knox.signedUrl(filename, expires), expiry: expires}
+            return {url: S3.knox.signedUrl(String(filename), expires, expiry: expires)}
 
         #
         # Payment methods:
@@ -198,7 +200,7 @@ if Meteor.isServer
             # send payment
             try
                 txid = dwolla.sendSync(pin, destinationId, totalAmount, {
-                    notes: 'Expense reimbursement for ' + payment.expenseType + ' expenses',
+                    notes: 'Expense: ' + payment.expenseDate + ' ' + payment.expenseType + ' ' + payment.expenseTrip,
                     fundsSource: sendingUser.profile.fundingSource,
                     assumeCosts: true
                 })
@@ -268,7 +270,7 @@ if Meteor.isServer
             return
 
     Meteor.startup ->
-        Roles.addUsersToRoles('W4Bamuwy2JD8jar25', 'superAccountant');
+        Roles.addUsersToRoles('PhiB83x9N9XWGuBHG', 'superAccountant');
         Roles.addUsersToRoles('2xi3fty4oFZWoNh6S', 'superAccountant');
         Roles.addUsersToRoles('SkDxPuy57oRyF8dmS', 'superAccountant');
         return

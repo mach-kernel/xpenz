@@ -111,7 +111,7 @@ if Meteor.isClient
         status: 'Rejected'
 
       rej.forEach (expense) ->
-        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+        if expense.receiptFileURL && (!expense.secureURLexpiry || expense.secureURLexpiry < Date.now())       
           Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
             Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
             Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
@@ -124,7 +124,7 @@ if Meteor.isClient
         status: 'Reimbursed'
 
       reimb.forEach (expense) ->
-        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+        if expense.receiptFileURL && (!expense.secureURLexpiry || expense.secureURLexpiry < Date.now())       
           Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
             Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
             Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
@@ -151,12 +151,20 @@ if Meteor.isClient
         if getQueryStringParam('invite').length
           Session.set('register', false)
           Session.set('invite', true)
+          UI.insert(UI.render(Template.invite), document.body)
+          history.pushState('/', 'xpenz', '/invite')
         else
           Session.set('register', true)
+          UI.insert(UI.render(Template.register), document.body)
+          history.pushState('/', 'xpenz', '/register')
       else if result.resultCode == 'user-logged-in'
         # if user exists, log the user in
         Session.set('register', false)
         Meteor.connection.setUserId(result.userId)
+
+        # Meteor bug
+        document.body.innerHTML = ''
+
         UI.insert(UI.render(Template.mainScreen), document.body)
         history.pushState('/', 'xpenz', '/')
                   
@@ -182,6 +190,12 @@ if Meteor.isClient
         if newUserId
           Meteor.connection.setUserId(newUserId)
           Session.set('register', false)
+
+          # Meteor bug
+          document.body.innerHTML = ''
+
+          UI.insert(UI.render(Template.mainScreen), document.body)
+          history.pushState('/', 'xpenz', '/')
         else
           # TODO; handle case when registration fails...
       )
@@ -203,7 +217,13 @@ if Meteor.isClient
       Meteor.call('registerUser', email, dwollaId, name, managerId, auth, (error, newUserId) ->
         if newUserId
           Meteor.connection.setUserId(newUserId)
-          Session.set('register', false)
+          Session.set('invite', false)
+
+          # Meteor bug
+          document.body.innerHTML = ''
+
+          UI.insert(UI.render(Template.mainScreen), document.body)
+          history.pushState('/', 'xpenz', '/')
         else
           # TODO; handle case when registration fails...
       )
@@ -256,7 +276,7 @@ if Meteor.isClient
         employeeId: Meteor.user()._id
 
       expenses.forEach (expense) ->
-        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+        if expense.receiptFileURL && (!expense.secureURLexpiry || expense.secureURLexpiry < Date.now())       
           Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
             Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
             Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
@@ -349,7 +369,7 @@ if Meteor.isClient
           $in: ['PendingApproval']
 
       expenses.forEach (expense) ->
-        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
+        if expense.receiptFileURL && (!expense.secureURLexpiry || expense.secureURLexpiry < Date.now())       
           Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
             Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
             Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
@@ -368,8 +388,8 @@ if Meteor.isClient
           $in: ['PendingReimbursement']
 
       expenses.forEach (expense) ->
-        if !expense.secureURLexpiry || expense.secureURLexpiry < Date.now()       
-          Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) ->
+        if expense.receiptFileURL && (!expense.secureURLexpiry || expense.secureURLexpiry < Date.now())       
+          Meteor.call 'getSecureURL', expense.receiptFileURL, (error, data) -> 
             Expenses.update({_id: expense._id}, {$set:{secureURL: data.url}})
             Expenses.update({_id: expense._id}, {$set:{secureURLexpiry: data.expiry}})
       return expenses

@@ -2,10 +2,8 @@
   <title>xpenz</title>
 
   <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
-  <link href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css" rel="stylesheet">
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/js/bootstrap.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.66.0-2013.10.09/jquery.blockUI.min.js"></script>
 
   <link href="//cdn.rawgit.com/noelboss/featherlight/1.0.1/release/featherlight.min.css" type="text/css" rel="stylesheet" title="Featherlight Styles" />
@@ -174,7 +172,7 @@ Email: <input id="email" type="email" />
 						<td>${{formatAmount amount}}</td>
 						<td>{{status}}</td>
 						<td>{{#if secureURL}}
-							<a href="{{secureURL}}" class="btn btn-default btn-sm" data-lightbox="image-1" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
+							<a href="{{secureURL}}" target="_blank" class="btn btn-default btn-sm" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
 							{{else}}
 							{{/if}}</td>
 						<td>
@@ -327,7 +325,7 @@ Email: <input id="email" type="email" />
 	<td>{{status}}</td>
 	<td>
 		{{#if secureURL}}
-			<a href="{{secureURL}}" class="btn btn-default btn-sm" data-lightbox="image-1" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
+			<a href="{{secureURL}}" target="_blank" class="btn btn-default btn-sm" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
 		{{else}} 
 			no receipt
 		{{/if}}
@@ -408,7 +406,7 @@ Email: <input id="email" type="email" />
 	<td>{{status}}</td>
 	<td>
 		{{#if secureURL}}
-			<a href="{{secureURL}}" class="btn btn-default btn-sm" data-lightbox="image-1" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
+			<a href="{{secureURL}}" target="_blank" class="btn btn-default btn-sm" data-title="{{description}}"><span class="glyphicon glyphicon-eye-open"></span> Receipt</a>
 		{{else}} 
 			no receipt
 		{{/if}}
