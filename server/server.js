@@ -8,7 +8,7 @@ if (Meteor.isServer) {
     // Prepare Dwolla support
     Dwolla = Meteor.npmRequire('dwolla-node');
     dwolla = Dwolla(process.env.DWOLLA_KEY, process.env.DWOLLA_SECRET);
-    dwolla.sandbox = true;
+    dwolla.sandbox = false;
 
     // Async-wrap sync calls to dwolla-node
     dwolla.finishAuthSync = Meteor.wrapAsync(dwolla.finishAuth);
