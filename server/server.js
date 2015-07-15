@@ -72,7 +72,7 @@ if (Meteor.isServer) {
             return true;
         },
         OAuthGetURL: function() {
-            return dwolla.authUrl(DWOLLA_OAUTH_REDIRECT_URL);
+            return dwolla.authUrl(DWOLLA_OAUTH_REDIRECT_URL, 'AccountInfoFull|Transactions|Balance|Send|Funding');
         },
         OAuthFinish: function(code) {
             var accountInfo, auth, foundUser;
